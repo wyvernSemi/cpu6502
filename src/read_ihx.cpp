@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: read_ihx.cpp,v 1.2 2017/01/12 10:02:55 simon Exp $
+// $Id: read_ihx.cpp,v 1.4 2017/01/13 09:06:15 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/read_ihx.cpp,v $
 //
 //=============================================================
@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #include "read_ihx.h"
+
 // -------------------------------------------------------------------------
 // hex2int()
 //
@@ -91,11 +92,7 @@ void cpu6502::prog_write_data(const uint32_t byte_count, const uint32_t addr, co
         data_byte = hex2int(buf_ptr + idx, 2);
 
         wr_mem(address++, data_byte);
-
-#ifdef DEBUG
-        printf("mem[0x%04x] = %02x\n", address-1, data_byte);
-#endif
-     }
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -281,12 +278,3 @@ int cpu6502::read_bin (const char *filename, const uint16_t start_addr)
 
     return BIN_NO_ERROR;
 }
-
-#ifdef DEBUG
-int main()
-{
-    uint8_t buf[64*1024];
-
-    read_ihx("try.ihx", buf);
-}
-#endif

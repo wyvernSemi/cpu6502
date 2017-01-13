@@ -77,8 +77,6 @@
   <ItemGroup>
     <ClInclude Include="..\src\cpu6502.h" />
     <ClInclude Include="..\src\cpu6502_api.h" />
-    <ClInclude Include="..\src\cpu6502_common.h" />
-    <ClInclude Include="..\src\cpu6502_priv.h" />
     <ClInclude Include="..\src\read_ihx.h" />
   </ItemGroup>
   <ItemGroup>

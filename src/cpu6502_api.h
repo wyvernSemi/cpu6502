@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.2 2017/01/12 10:02:55 simon Exp $
+// $Id: cpu6502_api.h,v 1.3 2017/01/12 20:18:07 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -48,6 +48,9 @@
 
 // Define WY65_STANDALONE to add top level main() test function to drive model.
 // #define WY65_STANDALONE
+
+// Define WY65_EN_PRINT_CYCLES to enable cycle counts in disassemble output
+// #define WY65_EN_PRINT_CYCLES
 
 // -------------------------------------------------------------------------
 // DEFINES (non-override-able)
@@ -83,9 +86,9 @@ typedef struct
 // Collected internal state of processor model 
 typedef struct 
 {
-    uint8_t           mem[WY65_MEM_SIZE];
+    uint8_t           mem [WY65_MEM_SIZE];
     wy65_reg_t        regs;
-    uint32_t          cycles;
+    uint64_t          cycles;
     uint16_t          nirq_line;
 
 } wy65_cpu_state_t;
@@ -190,7 +193,7 @@ private:
     // Disassemble opcode to logfile
     void               disassemble        (const int      opcode, 
                                            const uint16_t pc, 
-                                           const uint32_t cycles, 
+                                           const uint64_t cycles, 
                                            const bool     disable_jmp_mrk, 
                                            const bool     enable_regs_disp, 
                                            const uint8_t  a, 

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.2 2017/01/12 10:02:55 simon Exp $
+// $Id: cpu6502.cpp,v 1.3 2017/01/12 20:18:07 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -654,10 +654,8 @@ int cpu6502::BRK (const op_t* p_op)
 {
     state.regs.flags |= BRK_MASK;
 
-#ifndef BEEBM_TEST
     // Klaus Dormann's test suite is expecting the flag register's bit 5 to be set
     state.regs.flags |= 0x20;
-#endif
 
     // BRK has a pad byte which needs acounting for when RTI executed
     state.regs.pc++;
@@ -1455,7 +1453,7 @@ int cpu6502::TYA (const op_t* p_op)
 
 void cpu6502::disassemble (const int      opcode, 
                            const uint16_t pc, 
-                           const uint32_t cycles, 
+                           const uint64_t cycles, 
                            const bool     disable_jmp_mrk, 
                            const bool     enable_regs_disp, 
                            const uint8_t  a, 
@@ -1484,8 +1482,8 @@ void cpu6502::disassemble (const int      opcode,
 
     const char* str   = instr_tbl[opcode].op_str;
 
-#ifdef DIS_PRINT_CYCLES
-    fprintf(fp, "%08d : %04x   ", cycles, pc);
+#ifdef WY65_EN_PRINT_CYCLES
+    fprintf(fp, "%8d : %04x   ", cycles, pc);
 #else
     fprintf(fp, "%04x   ", pc);
 #endif
@@ -1642,7 +1640,7 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
 
     state.cycles     += num_cycles;
 
-    rtn_val.cycles    = num_cycles; // state.cycles;
+    rtn_val.cycles    = num_cycles;
     rtn_val.pc        = state.regs.pc;
 
     return rtn_val;
