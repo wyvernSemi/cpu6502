@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.3 2017/01/12 20:18:07 simon Exp $
+// $Id: cpu6502_api.h,v 1.4 2017/01/17 15:30:02 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -68,6 +68,7 @@ typedef struct
 {
     uint16_t          pc;      // PC value *after* instruction
     uint32_t          cycles;  // Cycle count of instruction execution
+    uint8_t           flags;
 
 } wy65_exec_status_t;
 
@@ -171,9 +172,6 @@ public:
                                            const uint32_t start_count      = 0xffffffff, 
                                            const uint32_t stop_count       = 0xffffffff,
                                            const bool     en_jmp_mrks      = true);
-
-    // Get copy of processor mode state
-    wy65_cpu_state_t   get_state          (void);
 
     // Register external memory functions for use in memory read/write accesses,
     // to allow interfacing with external memory system.

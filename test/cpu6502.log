@@ -1,0 +1,1147 @@
+CPU6502 Disassembler output
+
+0200   A0 01       LDY   #$01      a=00 x=00 y=00 sp=ff flags=04 (sp)=00
+0202   84 0B       STY   $0B       a=00 x=00 y=01 sp=ff flags=04 (sp)=00
+0204   A9 00       LDA   #$00      a=00 x=00 y=01 sp=ff flags=04 (sp)=00
+0206   85 00       STA   $00       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0208   85 01       STA   $01       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+020a   A5 01       LDA   $01       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+020c   29 0F       AND   #$0F      a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+020e   85 0E       STA   $0E       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0210   A5 01       LDA   $01       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0212   29 F0       AND   #$F0      a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0214   85 0F       STA   $0F       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0216   09 0F       ORA   #$0F      a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0218   85 10       STA   $10       a=0f x=00 y=01 sp=ff flags=04 (sp)=00
+021a   A5 00       LDA   $00       a=0f x=00 y=01 sp=ff flags=04 (sp)=00
+021c   29 0F       AND   #$0F      a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+021e   85 0C       STA   $0C       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0220   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0222   29 F0       AND   #$F0      a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=06 (sp)=00
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=06 (sp)=00
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0e (sp)=00
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=00
+025e   65 01       ADC   $01       a=00 x=00 y=01 sp=fd flags=0f (sp)=00
+0260   85 04       STA   $04       a=01 x=00 y=01 sp=fd flags=0c (sp)=00
+0262   08          PHP             a=01 x=00 y=01 sp=fd flags=0c (sp)=00
+0263   68          PLA             a=01 x=00 y=01 sp=fc flags=0c (sp)=00
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=00 x=00 y=01 sp=fd flags=07 (sp)=3c
+026d   85 02       STA   $02       a=01 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=01 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+0279   C9 0A       CMP   #$0A      a=01 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=01 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=01 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=01 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=01 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=01 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+028c   C9 A0       CMP   #$A0      a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+028e   90 03       BCC   $03       a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+0293   85 06       STA   $06       a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+0295   08          PHP             a=01 x=00 y=01 sp=fc flags=04 (sp)=00
+0296   68          PLA             a=01 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=01 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=01 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=01 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a4   85 04       STA   $04       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a6   08          PHP             a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a7   68          PLA             a=00 x=00 y=01 sp=fc flags=0f (sp)=34
+02a8   85 05       STA   $05       a=3f x=00 y=01 sp=fd flags=0d (sp)=3f
+02aa   D8          CLD             a=3f x=00 y=01 sp=fd flags=0d (sp)=3f
+02ab   C0 01       CPY   #$01      a=3f x=00 y=01 sp=fd flags=05 (sp)=3f
+02ad   A5 00       LDA   $00       a=3f x=00 y=01 sp=fd flags=07 (sp)=3f
+02af   E5 01       SBC   $01       a=00 x=00 y=01 sp=fd flags=07 (sp)=3f
+02b1   85 02       STA   $02       a=00 x=00 y=01 sp=fd flags=07 (sp)=3f
+02b3   08          PHP             a=00 x=00 y=01 sp=fd flags=07 (sp)=3f
+02b4   68          PLA             a=00 x=00 y=01 sp=fc flags=07 (sp)=34
+02b5   85 03       STA   $03       a=37 x=00 y=01 sp=fd flags=05 (sp)=37
+02b7   60          RTS             a=37 x=00 y=01 sp=fd flags=05 (sp)=37
+0234   20 E9 02    JSR   $02E9     a=37 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=37 x=00 y=01 sp=fd flags=05 (sp)=37
+02b8   C0 01       CPY   #$01      a=37 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=37 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02be   A2 00       LDX   #$00      a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02c0   B0 06       BCS   $06       a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02cc   B0 02       BCS   $02       a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02d0   85 06       STA   $06       a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02d2   60          RTS             a=00 x=00 y=01 sp=fb flags=07 (sp)=00
+02ec   A5 03       LDA   $03       a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+02ee   85 07       STA   $07       a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=37 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=37 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+02d7   D0 06       BNE   $06       a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3f x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=01 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=01 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=01 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=01 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=01 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=02 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=02 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=02 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=01 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=02 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=02 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=01 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=02 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=02 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=02 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=02 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=02 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=02 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=02 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=02 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=02 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=02 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=02 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=01 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=01 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=01 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=01 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=01 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=01 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=01 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=01 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=01 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=01 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=01 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=01 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=01 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=01 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=01 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=02 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=02 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=02 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=02 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=02 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=03 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=03 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=03 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=02 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=03 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=03 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=02 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=03 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=03 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=03 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=03 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=03 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=03 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=03 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=03 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=03 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=03 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=03 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=02 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=02 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=02 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=02 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=02 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=02 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=02 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=02 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=02 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=02 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=02 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=02 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=02 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=02 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=02 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=03 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=03 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=03 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=03 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=03 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=04 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=04 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=04 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=03 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=04 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=04 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=03 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=04 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=04 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=04 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=04 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=04 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=04 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=04 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=04 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=04 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=04 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=04 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=03 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=03 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=03 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=03 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=03 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=03 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=03 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=03 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=03 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=03 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=03 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=03 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=03 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=03 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=03 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=04 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=04 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=04 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=04 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=04 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=05 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=05 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=05 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=04 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=05 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=05 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=04 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=05 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=05 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=05 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=05 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=05 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=05 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=05 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=05 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=05 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=05 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=05 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=04 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=04 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=04 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=04 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=04 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=04 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=04 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=04 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=04 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=04 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=04 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=04 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=04 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=04 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=04 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=05 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=05 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=05 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=05 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=05 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=06 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=06 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=06 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=05 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=06 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=06 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=05 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=06 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=06 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=06 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=06 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=06 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=06 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=06 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=06 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=06 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=06 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=06 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=05 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=05 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=05 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=05 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=05 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=05 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=05 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=05 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=05 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=05 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=05 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=05 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=05 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=05 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=05 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=06 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=06 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=06 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=06 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=06 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=07 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=07 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=07 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=06 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=07 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=07 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=06 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=07 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=07 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=07 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=07 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=07 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=07 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=07 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=07 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=07 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=07 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=07 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=06 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=06 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=06 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=06 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=06 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=06 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=06 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=06 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=06 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=06 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=06 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=06 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=06 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=06 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=06 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=07 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=07 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=07 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=07 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=07 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=08 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=08 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=08 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=07 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=08 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=08 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=07 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=08 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=08 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=08 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=08 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=08 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=08 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=08 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=08 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=08 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=08 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=08 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=07 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=07 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=07 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=07 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=07 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=07 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=07 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=07 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=07 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=07 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=07 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=07 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=07 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=07 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=07 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=08 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=08 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=08 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=08 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=08 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=09 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=09 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=09 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=08 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=09 x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=09 x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=09 x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=09 x=00 y=01 sp=fd flags=84 (sp)=34
+027d   90 06       BCC   $06       a=09 x=00 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=09 x=00 y=01 sp=fd flags=06 (sp)=34
+0287   75 0F       ADC   $0F,X     a=09 x=00 y=01 sp=fd flags=04 (sp)=34
+0289   08          PHP             a=09 x=00 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=09 x=00 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=09 x=00 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=00 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=00 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=09 x=00 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=09 x=00 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=09 x=00 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=00 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=08 x=00 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=08 x=00 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=08 x=00 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=08 x=00 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=00 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=00 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=00 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=08 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=08 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=08 x=00 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=08 x=00 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=00 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=00 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=00 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=08 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=08 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=08 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=08 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=08 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=09 x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=09 x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=09 x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=09 x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=09 x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=10 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=10 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=10 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=09 x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=0a x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=0a x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=0a x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=09 x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=0a x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=0a x=00 y=01 sp=fd flags=07 (sp)=34
+027d   90 06       BCC   $06       a=0a x=00 y=01 sp=fd flags=07 (sp)=34
+027f   E8          INX             a=0a x=00 y=01 sp=fd flags=07 (sp)=34
+0280   69 05       ADC   #$05      a=0a x=01 y=01 sp=fd flags=05 (sp)=34
+0282   29 0F       AND   #$0F      a=10 x=01 y=01 sp=fd flags=04 (sp)=34
+0284   38          SEC             a=00 x=01 y=01 sp=fd flags=06 (sp)=34
+0285   05 0D       ORA   $0D       a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+0287   75 0F       ADC   $0F,X     a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+0289   08          PHP             a=10 x=01 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=10 x=01 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=10 x=01 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=10 x=01 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=10 x=01 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=10 x=01 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=10 x=01 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=01 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=01 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=01 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=01 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=10 x=01 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=10 x=01 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=10 x=01 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=01 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=01 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=01 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=01 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=01 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=01 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=09 x=01 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=09 x=01 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=09 x=01 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=09 x=01 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=01 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=01 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=01 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=01 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=09 x=01 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=09 x=01 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=09 x=01 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=09 x=01 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=01 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=01 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=01 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=09 x=01 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=09 x=01 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=09 x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=09 x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=09 x=00 y=01 sp=fb flags=05 (sp)=00
+02cc   B0 02       BCS   $02       a=09 x=00 y=01 sp=fb flags=05 (sp)=00
+02d0   85 06       STA   $06       a=09 x=00 y=01 sp=fb flags=05 (sp)=00
+02d2   60          RTS             a=09 x=00 y=01 sp=fb flags=05 (sp)=00
+02ec   A5 03       LDA   $03       a=09 x=00 y=01 sp=fd flags=05 (sp)=02
+02ee   85 07       STA   $07       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f0   85 08       STA   $08       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f2   85 09       STA   $09       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f4   85 0A       STA   $0A       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02f6   60          RTS             a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+0237   20 D3 02    JSR   $02D3     a=35 x=00 y=01 sp=ff flags=05 (sp)=02
+02d3   A5 04       LDA   $04       a=35 x=00 y=01 sp=fd flags=05 (sp)=02
+02d5   C5 06       CMP   $06       a=09 x=00 y=01 sp=fd flags=05 (sp)=02
+02d7   D0 06       BNE   $06       a=09 x=00 y=01 sp=fd flags=07 (sp)=02
+02d9   A5 05       LDA   $05       a=09 x=00 y=01 sp=fd flags=07 (sp)=02
+02db   45 0A       EOR   $0A       a=3d x=00 y=01 sp=fd flags=05 (sp)=02
+02dd   29 01       AND   #$01      a=08 x=00 y=01 sp=fd flags=05 (sp)=02
+02df   60          RTS             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+023a   D0 19       BNE   $19       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023c   E6 00       INC   $00       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+023e   D0 DA       BNE   $DA       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021a   A5 00       LDA   $00       a=00 x=00 y=01 sp=ff flags=05 (sp)=02
+021c   29 0F       AND   #$0F      a=0a x=00 y=01 sp=ff flags=05 (sp)=02
+021e   85 0C       STA   $0C       a=0a x=00 y=01 sp=ff flags=05 (sp)=02
+0220   A5 00       LDA   $00       a=0a x=00 y=01 sp=ff flags=05 (sp)=02
+0222   29 F0       AND   #$F0      a=0a x=00 y=01 sp=ff flags=05 (sp)=02
+0224   85 0D       STA   $0D       a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0226   20 59 02    JSR   $0259     a=00 x=00 y=01 sp=ff flags=07 (sp)=02
+0259   F8          SED             a=00 x=00 y=01 sp=fd flags=07 (sp)=02
+025a   C0 01       CPY   #$01      a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025c   A5 00       LDA   $00       a=00 x=00 y=01 sp=fd flags=0f (sp)=02
+025e   65 01       ADC   $01       a=0a x=00 y=01 sp=fd flags=0d (sp)=02
+0260   85 04       STA   $04       a=11 x=00 y=01 sp=fd flags=0c (sp)=02
+0262   08          PHP             a=11 x=00 y=01 sp=fd flags=0c (sp)=02
+0263   68          PLA             a=11 x=00 y=01 sp=fc flags=0c (sp)=eb
+0264   85 05       STA   $05       a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0266   D8          CLD             a=3c x=00 y=01 sp=fd flags=0c (sp)=3c
+0267   C0 01       CPY   #$01      a=3c x=00 y=01 sp=fd flags=04 (sp)=3c
+0269   A5 00       LDA   $00       a=3c x=00 y=01 sp=fd flags=07 (sp)=3c
+026b   65 01       ADC   $01       a=0a x=00 y=01 sp=fd flags=05 (sp)=3c
+026d   85 02       STA   $02       a=0b x=00 y=01 sp=fd flags=04 (sp)=3c
+026f   08          PHP             a=0b x=00 y=01 sp=fd flags=04 (sp)=3c
+0270   68          PLA             a=0b x=00 y=01 sp=fc flags=04 (sp)=eb
+0271   85 03       STA   $03       a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0273   C0 01       CPY   #$01      a=34 x=00 y=01 sp=fd flags=04 (sp)=34
+0275   A5 0C       LDA   $0C       a=34 x=00 y=01 sp=fd flags=07 (sp)=34
+0277   65 0E       ADC   $0E       a=0a x=00 y=01 sp=fd flags=05 (sp)=34
+0279   C9 0A       CMP   #$0A      a=0b x=00 y=01 sp=fd flags=04 (sp)=34
+027b   A2 00       LDX   #$00      a=0b x=00 y=01 sp=fd flags=05 (sp)=34
+027d   90 06       BCC   $06       a=0b x=00 y=01 sp=fd flags=07 (sp)=34
+027f   E8          INX             a=0b x=00 y=01 sp=fd flags=07 (sp)=34
+0280   69 05       ADC   #$05      a=0b x=01 y=01 sp=fd flags=05 (sp)=34
+0282   29 0F       AND   #$0F      a=11 x=01 y=01 sp=fd flags=04 (sp)=34
+0284   38          SEC             a=01 x=01 y=01 sp=fd flags=04 (sp)=34
+0285   05 0D       ORA   $0D       a=01 x=01 y=01 sp=fd flags=05 (sp)=34
+0287   75 0F       ADC   $0F,X     a=01 x=01 y=01 sp=fd flags=05 (sp)=34
+0289   08          PHP             a=11 x=01 y=01 sp=fd flags=04 (sp)=34
+028a   B0 04       BCS   $04       a=11 x=01 y=01 sp=fc flags=04 (sp)=eb
+028c   C9 A0       CMP   #$A0      a=11 x=01 y=01 sp=fc flags=04 (sp)=eb
+028e   90 03       BCC   $03       a=11 x=01 y=01 sp=fc flags=04 (sp)=eb
+0293   85 06       STA   $06       a=11 x=01 y=01 sp=fc flags=04 (sp)=eb
+0295   08          PHP             a=11 x=01 y=01 sp=fc flags=04 (sp)=eb
+0296   68          PLA             a=11 x=01 y=01 sp=fb flags=04 (sp)=00
+0297   85 0A       STA   $0A       a=34 x=01 y=01 sp=fc flags=04 (sp)=34
+0299   68          PLA             a=34 x=01 y=01 sp=fc flags=04 (sp)=34
+029a   85 08       STA   $08       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+029c   60          RTS             a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+0229   20 E0 02    JSR   $02E0     a=34 x=01 y=01 sp=ff flags=04 (sp)=02
+02e0   A5 08       LDA   $08       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e2   85 07       STA   $07       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e4   A5 03       LDA   $03       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e6   85 09       STA   $09       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02e8   60          RTS             a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+022c   20 D3 02    JSR   $02D3     a=34 x=01 y=01 sp=ff flags=04 (sp)=02
+02d3   A5 04       LDA   $04       a=34 x=01 y=01 sp=fd flags=04 (sp)=34
+02d5   C5 06       CMP   $06       a=11 x=01 y=01 sp=fd flags=04 (sp)=34
+02d7   D0 06       BNE   $06       a=11 x=01 y=01 sp=fd flags=07 (sp)=34
+02d9   A5 05       LDA   $05       a=11 x=01 y=01 sp=fd flags=07 (sp)=34
+02db   45 0A       EOR   $0A       a=3c x=01 y=01 sp=fd flags=05 (sp)=34
+02dd   29 01       AND   #$01      a=08 x=01 y=01 sp=fd flags=05 (sp)=34
+02df   60          RTS             a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+022f   D0 24       BNE   $24       a=00 x=01 y=01 sp=ff flags=07 (sp)=02
+0231   20 9D 02    JSR   $029D     a=00 x=01 y=01 sp=ff flags=07 (sp)=02
+029d   F8          SED             a=00 x=01 y=01 sp=fd flags=07 (sp)=34
+029e   C0 01       CPY   #$01      a=00 x=01 y=01 sp=fd flags=0f (sp)=34
+02a0   A5 00       LDA   $00       a=00 x=01 y=01 sp=fd flags=0f (sp)=34
+02a2   E5 01       SBC   $01       a=0a x=01 y=01 sp=fd flags=0d (sp)=34
+02a4   85 04       STA   $04       a=10 x=01 y=01 sp=fd flags=0d (sp)=34
+02a6   08          PHP             a=10 x=01 y=01 sp=fd flags=0d (sp)=34
+02a7   68          PLA             a=10 x=01 y=01 sp=fc flags=0d (sp)=34
+02a8   85 05       STA   $05       a=3d x=01 y=01 sp=fd flags=0d (sp)=3d
+02aa   D8          CLD             a=3d x=01 y=01 sp=fd flags=0d (sp)=3d
+02ab   C0 01       CPY   #$01      a=3d x=01 y=01 sp=fd flags=05 (sp)=3d
+02ad   A5 00       LDA   $00       a=3d x=01 y=01 sp=fd flags=07 (sp)=3d
+02af   E5 01       SBC   $01       a=0a x=01 y=01 sp=fd flags=05 (sp)=3d
+02b1   85 02       STA   $02       a=0a x=01 y=01 sp=fd flags=05 (sp)=3d
+02b3   08          PHP             a=0a x=01 y=01 sp=fd flags=05 (sp)=3d
+02b4   68          PLA             a=0a x=01 y=01 sp=fc flags=05 (sp)=34
+02b5   85 03       STA   $03       a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+02b7   60          RTS             a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+0234   20 E9 02    JSR   $02E9     a=35 x=01 y=01 sp=ff flags=05 (sp)=02
+02e9   20 B8 02    JSR   $02B8     a=35 x=01 y=01 sp=fd flags=05 (sp)=35
+02b8   C0 01       CPY   #$01      a=35 x=01 y=01 sp=fb flags=05 (sp)=00
+02ba   A5 0C       LDA   $0C       a=35 x=01 y=01 sp=fb flags=07 (sp)=00
+02bc   E5 0E       SBC   $0E       a=0a x=01 y=01 sp=fb flags=05 (sp)=00
+02be   A2 00       LDX   #$00      a=0a x=01 y=01 sp=fb flags=05 (sp)=00
+02c0   B0 06       BCS   $06       a=0a x=00 y=01 sp=fb flags=07 (sp)=00
+02c8   05 0D       ORA   $0D       a=0a x=00 y=01 sp=fb flags=07 (sp)=00
+02ca   F5 0F       SBC   $0F,X     a=0a x=00 y=01 sp=fb flags=05 (sp)=00

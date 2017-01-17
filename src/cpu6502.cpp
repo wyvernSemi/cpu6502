@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.3 2017/01/12 20:18:07 simon Exp $
+// $Id: cpu6502.cpp,v 1.4 2017/01/17 15:30:02 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -1642,6 +1642,7 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
 
     rtn_val.cycles    = num_cycles;
     rtn_val.pc        = state.regs.pc;
+    rtn_val.flags     = state.regs.flags;
 
     return rtn_val;
 }
@@ -1725,18 +1726,6 @@ void cpu6502::reset ()
 
     state.cycles      = RST_CYCLES;
     state.nirq_line   = NO_ACTIVE_IRQS;
-}
-
-// -------------------------------------------------------------------------
-// get_state()
-//
-// Return a copy of the internal state of the model.
-//
-// -------------------------------------------------------------------------
-
-wy65_cpu_state_t cpu6502::get_state ()
-{
-    return state;
 }
 
 // -------------------------------------------------------------------------
