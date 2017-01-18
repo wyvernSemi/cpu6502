@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.4 2017/01/17 15:30:02 simon Exp $
+// $Id: cpu6502_api.h,v 1.5 2017/01/18 12:24:07 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -31,6 +31,7 @@
 // INCLUDES
 // -------------------------------------------------------------------------
 
+#include <stdio.h>
 #include <stdint.h>
 
 // -------------------------------------------------------------------------
@@ -226,7 +227,7 @@ private:
     // Write to memory---either local, or via externally set method
     inline void        wr_mem             (int addr, unsigned char data) {
                                               if (ext_wr_mem != NULL) 
-                                                  ext_wr_mem(addr, data); 
+                                                  ext_wr_mem(addr, data);   // LCOV_EXCL_LINE
                                               else 
                                                   state.mem[addr] = data;
                                           };
@@ -234,7 +235,7 @@ private:
     // Read from memory---either local, or via externally set method
     inline int         rd_mem             (int addr) {
                                                if (ext_rd_mem != NULL) 
-                                                   return ext_rd_mem(addr); 
+                                                   return ext_rd_mem(addr);   // LCOV_EXCL_LINE
                                                else 
                                                    return state.mem[addr]; 
                                            };

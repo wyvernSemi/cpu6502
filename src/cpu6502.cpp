@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.4 2017/01/17 15:30:02 simon Exp $
+// $Id: cpu6502.cpp,v 1.5 2017/01/18 12:24:49 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -33,6 +33,43 @@
 
 #include "cpu6502.h"
 #include "read_ihx.h"
+
+static double tv_diff;
+#if !(defined _WIN32) && !(defined _WIN64)
+#include <sys/time.h>
+static struct timeval tv_start, tv_stop;
+
+#else
+#include <Windows.h>
+LARGE_INTEGER freq, start, stop;
+#endif
+
+// -------------------------------------------------------------------------
+// Terminal control utility functions for enabling/diabling input echoing
+// -------------------------------------------------------------------------
+
+static void pre_run_setup()
+{
+#if !(defined _WIN32) && !(defined _WIN64)
+    // Log time just before running (LINUX only)
+    (void)gettimeofday(&tv_start, NULL);
+#else
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&start);
+#endif 
+}
+
+static void post_run_setup()
+{
+#if !(defined _WIN32) && !(defined _WIN64)
+    // Get time just after running, and calculate run time (LINUX only)
+    (void)gettimeofday(&tv_stop, NULL);
+    tv_diff = ((float)(tv_stop.tv_sec - tv_start.tv_sec)*1e6) + ((float)(tv_stop.tv_usec - tv_start.tv_usec));
+#else
+    QueryPerformanceCounter(&stop);
+    tv_diff = (double)(stop.QuadPart - start.QuadPart)*1e6/(double)freq.QuadPart;
+#endif 
+}
 
 // -------------------------------------------------------------------------
 // cpu6502
@@ -1451,6 +1488,8 @@ int cpu6502::TYA (const op_t* p_op)
 //
 // -------------------------------------------------------------------------
 
+// LCOV_EXCL_START
+
 void cpu6502::disassemble (const int      opcode, 
                            const uint16_t pc, 
                            const uint64_t cycles, 
@@ -1565,32 +1604,7 @@ void cpu6502::disassemble (const int      opcode,
 
 }
 
-// -------------------------------------------------------------------------
-// irq()
-//
-// Checks for, and execution of, maskable interrupts. IRQs are level 
-// sensitive (active low). The nirq_line state has 16 lines bitmapped,
-// and if any are low, and interrupts are enabled (I flag is low),
-// The PC and state are pushed on the stack, the I flag set, and the
-// PC set to the interrupt vector defined at address 0xfffe.
-//
-// -------------------------------------------------------------------------
-
-void cpu6502::irq ()
-{
-    if (state.nirq_line != NO_ACTIVE_IRQS && !(state.regs.flags & INT_MASK))
-    {
-        wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & 0xff);  state.regs.sp--;
-        wr_mem(state.regs.sp | 0x100, state.regs.pc & 0xff);         state.regs.sp--;
-        wr_mem(state.regs.sp | 0x100, state.regs.flags & ~BRK_MASK); state.regs.sp--;
-        
-        state.regs.flags |= INT_MASK;
-        
-        state.regs.pc     = (uint16_t)rd_mem(0xfffe) | ((uint16_t)rd_mem(0xffff) << 8);
-
-        state.cycles      += IRQ_CYCLES;
-    }
-}
+// LCOV_EXCL_STOP
 
 // -------------------------------------------------------------------------
 // execute()
@@ -1623,7 +1637,7 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
         disassemble(op.opcode, 
                     state.regs.pc-1, 
                     state.cycles, 
-                    en_jmp_mrks, 
+                    !en_jmp_mrks, 
                     true, 
                     state.regs.a, 
                     state.regs.x, 
@@ -1669,6 +1683,33 @@ void cpu6502::nmi_interrupt ()
     state.regs.pc     = (uint16_t)rd_mem(0xfffa) | ((uint16_t)rd_mem(0xfffb) << 8);
 
     state.cycles     += NMI_CYCLES;
+}
+
+// -------------------------------------------------------------------------
+// irq()
+//
+// Checks for, and execution of, maskable interrupts. IRQs are level 
+// sensitive (active low). The nirq_line state has 16 lines bitmapped,
+// and if any are low, and interrupts are enabled (I flag is low),
+// The PC and state are pushed on the stack, the I flag set, and the
+// PC set to the interrupt vector defined at address 0xfffe.
+//
+// -------------------------------------------------------------------------
+
+void cpu6502::irq ()
+{
+    if (state.nirq_line != NO_ACTIVE_IRQS && !(state.regs.flags & INT_MASK))
+    {
+        wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & 0xff);  state.regs.sp--;
+        wr_mem(state.regs.sp | 0x100, state.regs.pc & 0xff);         state.regs.sp--;
+        wr_mem(state.regs.sp | 0x100, state.regs.flags & ~BRK_MASK); state.regs.sp--;
+        
+        state.regs.flags |= INT_MASK;
+        
+        state.regs.pc     = (uint16_t)rd_mem(0xfffe) | ((uint16_t)rd_mem(0xffff) << 8);
+
+        state.cycles      += IRQ_CYCLES;
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -1750,11 +1791,13 @@ void cpu6502::reset ()
 //
 // -------------------------------------------------------------------------
 
+// LCOV_EXCL_START
 void cpu6502::register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t p_rfunc)
 {
     ext_wr_mem        = p_wfunc;
     ext_rd_mem        = p_rfunc;
 }
+// LCOV_EXCL_STOP
 
 #ifdef WY65_STANDALONE
 
@@ -1764,20 +1807,6 @@ void cpu6502::register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t p_
 
 // The cpu6502 model
 static cpu6502  cpu;
-
-// -------------------------------------------------------------------------
-// wr_mem()
-//
-// Local non-class memory write function to pass into IHX routines
-// (can't get a true pointer to a class member function).
-//
-// -------------------------------------------------------------------------
-/*
-static void wr_mem(int addr, unsigned char data)
-{
-    cpu.wr_mem(addr, data);
-}
-*/
 
 // -------------------------------------------------------------------------
 // main()
@@ -1805,6 +1834,9 @@ int main (int argc, char** argv)
     uint32_t icount_brk       = DEFAULT_DEBUG_ICOUNT;
     uint32_t start_dis_count  = DEFAULT_START_DIS_CNT;
     uint32_t stop_dis_count   = DEFAULT_STOP_DIS_CNT;
+    uint32_t instr_count      = 0;
+
+    bool     error            = false;
 
     char*    fname            = DEFAULT_PROG_FILE_NAME;
 
@@ -1818,10 +1850,13 @@ int main (int argc, char** argv)
         {
         case 'f':
             fname             = optarg;
+            read_bin          = true;
+            read_srecord      = false;
             break;
         case 'I':
             fname             = optarg;
             read_bin          = false;
+            read_srecord      = false;
             break;
         case 'M':
             fname             = optarg;
@@ -1846,6 +1881,7 @@ int main (int argc, char** argv)
         case 'E':
             stop_dis_count    = strtol(optarg, NULL, 0);
             break;
+        //LCOV_EXCL_START
         case 'h':
         case 'q':
             fprintf(stderr, "Usage: %s [[-f | -I | -M] <filename>][-l <addr>>][-s <addr>]\n"
@@ -1871,6 +1907,7 @@ int main (int argc, char** argv)
                           );
             return option == 'h' ? GOOD_RTN_STATUS : BAD_OPTION;
             break;
+        //LCOV_EXCL_STOP
         }
     }
 
@@ -1878,21 +1915,21 @@ int main (int argc, char** argv)
     {
         if (cpu.read_bin(fname, load_addr) != BIN_NO_ERROR)
         {
-            return BAD_FILE_OPEN;
+            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
         }
     }
     else if (read_srecord)
     {
         if (cpu.read_srec (fname) != SREC_NO_ERROR)
         {
-            return BAD_FILE_OPEN;
+            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
         }
     }
     else
     {
         if (cpu.read_ihx (fname) != IHX_NO_ERROR)
         {
-            return BAD_FILE_OPEN;
+            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
         }
     }
 
@@ -1900,52 +1937,173 @@ int main (int argc, char** argv)
     cpu.wr_mem(0xfffc,  start_addr       & 0xff);
     cpu.wr_mem(0xfffd, (start_addr >> 8) & 0xff);
 
+    // ------------------------------------
+    // NMI Interrupt test
+    // ------------------------------------
 
-    // Load failure status to nominated location
-    cpu.wr_mem(0xfff8,  BAD_TEST_STATUS       & 0xff);
-    cpu.wr_mem(0xfff9, (BAD_TEST_STATUS >> 8) & 0xff);
-
-    // Assert a reset
+    // Reset
     cpu.reset();
 
-    wy65_exec_status_t status;
-    bool     terminate        = false;
-    uint32_t instr_count      = 0;
-    uint16_t prev_pc          = 0;
+    // Execute an instruction
+    wy65_exec_status_t status = cpu.execute();
 
-    fprintf(stdout, "Executing %s from address 0x%04x ...\n\n", fname, start_addr); 
-
-    // Start executing instructions
-    do 
+    // Check returned PC is within three of the reset vector
+    if (status.pc < start_addr || status.pc >= (start_addr+3))
     {
-        // This is here purely to serve as debug breakpoint for 
-        // a given address after a certain number of executed instructions.
-        if (prev_pc == debug_start_addr && instr_count > icount_brk)
+        error = true; // LCOV_EXCL_LINE
+    }
+    // Make sure that the flags have the interrupt bit set
+    else if (!(status.flags & INT_MASK))
+    {
+        error = true; // LCOV_EXCL_LINE
+    }
+
+    if (!error)
+    {
+        uint16_t nmi_addr = 0xfff0;
+
+        // Load the NMI vector with the user start location, if specified
+        cpu.wr_mem(0xfffa,  nmi_addr       & 0xff);
+        cpu.wr_mem(0xfffb, (nmi_addr >> 8) & 0xff);
+
+        // Load NMI address with a NOP
+        cpu.wr_mem(nmi_addr,    0xEA); // Load a NOP opcode
+        cpu.wr_mem(nmi_addr+1,  0x58); // Load a CLI opcode
+
+        // Raise an interrupt
+        cpu.nmi_interrupt();
+
+        // Execute an instruction
+        status = cpu.execute();
+
+        // Check returned PC is address after nmi_addr
+        if (status.pc != (nmi_addr+1))
         {
-            prev_pc           = prev_pc; // Does nothing
+            error = true; // LCOV_EXCL_LINE
+        }
+        // Check that the flags has the interrupt bit set, but not the break flag
+        else if (((status.flags & INT_MASK) == 0) || (status.flags & BRK_MASK))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+        else
+        {
+            // Execute next instruction (CLI)
+            status = cpu.execute();
+
+            // Check interrupt flag clear, ready for IRQ testing
+            if (status.flags & INT_MASK)
+            {
+                error = true; // LCOV_EXCL_LINE
+            }
+        }
+    }
+
+    // ------------------------------------
+    // IRQ Interrupt test
+    // ------------------------------------
+
+    if (!error)
+    {
+        uint16_t old_irq_vec;
+        uint16_t irq_addr = 0xfff2;
+
+        // Remember the vector already programmed in memory
+        old_irq_vec = cpu.rd_mem(0xfffe);
+        old_irq_vec |= cpu.rd_mem(0xffff) << 8;
+
+        // Load the IRQ vector with the user start location, if specified
+        cpu.wr_mem(0xfffe,  irq_addr       & 0xff);
+        cpu.wr_mem(0xffff, (irq_addr >> 8) & 0xff);
+
+        // Load IRQ address with a NOP
+        cpu.wr_mem(irq_addr,    0xEA); // Load a NOP opcode
+
+        // Activate an IRQ
+        cpu.activate_irq();
+
+        // Execute an instruction
+        status = cpu.execute();
+
+        // Remove active IRQ
+        cpu.deactivate_irq();
+
+        // Check PC is irq_addr + 1
+        if (status.pc != (irq_addr+1))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+        // Check interrupt flag set
+        else if (!(status.flags & INT_MASK))
+        {
+            error = true; // LCOV_EXCL_LINE
         }
 
-        status = cpu.execute(instr_count++, start_dis_count, stop_dis_count);
-
-        // Terminate if looping back to same instruction (i.e. deliberately hung)
-        terminate = (status.pc == prev_pc);
-
-        prev_pc               = status.pc;
-
+        // Restore IRQ vector (for BRK instruction testing in main test)
+        cpu.wr_mem(0xfffe,  old_irq_vec       & 0xff);
+        cpu.wr_mem(0xffff, (old_irq_vec >> 8) & 0xff);
     }
-    while (!terminate);
 
-    // Get test status values from memory
-    uint16_t test_status = (cpu.rd_mem(0xfff9) << 8) | cpu.rd_mem(0xfff8);
+    // ------------------------------------
+    // Main test
+    // ------------------------------------
 
-    if (test_status == GOOD_TEST_STATUS)
+    if (!error)
+    {
+        // Load failure status to nominated location
+        cpu.wr_mem(0xfff8,  BAD_TEST_STATUS       & 0xff);
+        cpu.wr_mem(0xfff9, (BAD_TEST_STATUS >> 8) & 0xff);
+
+        // Assert a reset
+        cpu.reset();
+
+        wy65_exec_status_t status;
+        bool     terminate        = false;
+        uint16_t prev_pc          = 0;
+
+        fprintf(stdout, "Executing %s from address 0x%04x ...\n\n", fname, start_addr); 
+
+        // Start the clock
+        pre_run_setup();
+
+        // Start executing instructions
+        do 
+        {
+            // This is here purely to serve as debug breakpoint for 
+            // a given address after a certain number of executed instructions.
+            if (prev_pc == debug_start_addr && instr_count > icount_brk)
+            {
+                prev_pc           = prev_pc; // Does nothing (LCOV_EXCL_LINE)
+            }
+
+            status = cpu.execute(instr_count++, start_dis_count, stop_dis_count, true);
+
+            // Terminate if looping back to same instruction (i.e. deliberately hung)
+            terminate = (status.pc == prev_pc);
+
+            prev_pc               = status.pc;
+
+        }
+        while (!terminate);
+
+        // Stop the clock
+        post_run_setup();
+
+        // Get test status values from memory
+        uint16_t test_status = (cpu.rd_mem(0xfff9) << 8) | cpu.rd_mem(0xfff8);
+
+        error = test_status != GOOD_TEST_STATUS;
+    }
+
+    if (!error)
     {
         fprintf(stdout, "********\n");
         fprintf(stdout, "* PASS *\n");
         fprintf(stdout, "********\n\n");
 
-        fprintf(stdout, "Executed %d instructions\n\n", instr_count);
+        fprintf(stdout, "Executed %.2f million instructions (%.1f MIPS)\n\n", (float)instr_count/1e6, (float)instr_count/tv_diff);
     }
+    // LCOV_EXCL_START
     else
     {
         fprintf(stderr, "********\n");
@@ -1954,6 +2112,7 @@ int main (int argc, char** argv)
 
         fprintf(stderr, "Terminated at PC = 0x%04x after %d instructions\n\n", status.pc, instr_count);
     }
+    // LCOV_EXCL_STOP
 
     return GOOD_RTN_STATUS;
 }

@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: read_ihx.cpp,v 1.4 2017/01/13 09:06:15 simon Exp $
+// $Id: read_ihx.cpp,v 1.5 2017/01/18 12:24:34 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/read_ihx.cpp,v $
 //
 //=============================================================
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <ctype.h>
 
 #include "read_ihx.h"
 
@@ -53,15 +54,16 @@ int cpu6502::hex2int(const uint8_t *buf, int num_chars)
 
         digit = *(buf+idx);
 
+        if (digit >= 'A' && digit <= 'F')
+        {
+            digit = tolower(digit);
+        }
+
         value <<= 4;
 
         if ((digit >= 'a') && (digit <= 'f'))
         {
             value |= digit - 'a' + 10;
-        }
-        else if ((digit >= 'A') && (digit <= 'F'))
-        {
-            value |= digit - 'A' + 10;
         }
         else
         {
@@ -116,7 +118,7 @@ int cpu6502::read_ihx (const char *filename)
 
     if (file == NULL)
     {
-        return IHX_FILE_ERROR;
+        return IHX_FILE_ERROR;              // LCOV_EXCL_LINE
     }
 
     // Read in a line at a time (i.e. one record)
@@ -127,8 +129,8 @@ int cpu6502::read_ihx (const char *filename)
         // Check for intel hex format leading colon
         if (*buf_ptr != ':')
         {
-            fclose(file);
-            return IHX_FORMAT_ERROR;
+            fclose(file);                   // LCOV_EXCL_LINE
+            return IHX_FORMAT_ERROR;        // LCOV_EXCL_LINE
         }
         else
         {
@@ -160,8 +162,8 @@ int cpu6502::read_ihx (const char *filename)
         // Got a type we don't support
         else
         {
-            fclose(file);
-            return IHX_UNRECOGNISED_TYPE;
+            fclose(file);                  // LCOV_EXCL_LINE
+            return IHX_UNRECOGNISED_TYPE;  // LCOV_EXCL_LINE
         }
     }
 
@@ -193,7 +195,7 @@ int cpu6502::read_srec (const char *filename)
 
     if (file == NULL)
     {
-        return SREC_FILE_ERROR;
+        return SREC_FILE_ERROR;            // LCOV_EXCL_LINE
     }
 
     // Read in a line at a time (i.e. one record)
@@ -204,8 +206,8 @@ int cpu6502::read_srec (const char *filename)
         // Check for Motorola S-REC format leading 'S'
         if (*buf_ptr != 'S')
         {
-            fclose(file);
-            return SREC_FORMAT_ERROR;
+            fclose(file);                  // LCOV_EXCL_LINE
+            return SREC_FORMAT_ERROR;      // LCOV_EXCL_LINE
         }
         else
         {
@@ -235,8 +237,8 @@ int cpu6502::read_srec (const char *filename)
         // Got an unsupported type. (Recognised, but Non-data, records skipped)
         else if (record_type > SREC_START_ADDR16 || record_type == SREC_RSVD)
         {
-            fclose(file);
-            return SREC_UNRECOGNISED_TYPE;
+            fclose(file);                  // LCOV_EXCL_LINE
+            return SREC_UNRECOGNISED_TYPE; // LCOV_EXCL_LINE
         }
     }
 
@@ -263,8 +265,8 @@ int cpu6502::read_bin (const char *filename, const uint16_t start_addr)
     // Load internal memory with binary file, starting at defined adddress
     if ((file = fopen(filename, "rb")) == NULL)
     {
-        fprintf(stderr, "***ERROR: unable to open file %s for reading\n", filename);
-        return BIN_FILE_ERROR;
+        fprintf(stderr, "***ERROR: unable to open file %s for reading\n", filename); // LCOV_EXCL_LINE
+        return BIN_FILE_ERROR;                                                       // LCOV_EXCL_LINE
     }
 
     int c;

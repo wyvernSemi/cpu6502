@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with cpu6502. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.2 2017/01/15 08:27:25 simon Exp $
+# $Id: makefile,v 1.3 2017/01/18 12:23:29 simon Exp $
 # $Source: /home/simon/CVS/src/cpu/cpu6502/makefile,v $
 # 
 ##########################################################
@@ -35,15 +35,22 @@ TESTTGT=test.hex
 
 SRCDIR=./src
 TESTDIR=./test
+OBJDIR=./obj
 
 SRCFILES=cpu6502.cpp read_ihx.cpp
 TESTSRC=test.a65
 
-COMMINCL=read_ihx.h cpu6502.h
+COMMINCL=read_ihx.h cpu6502.h cpu6502_api.h
 TGTINCL=cpu6502.h
 
-USROPTS=-DWY65_STANDALONE
-COPTS=-Ofast -I${SRCDIR}/ -Wno-write-strings
+OBJECTS=${SRCFILES:%.cpp=%.o}
+
+# Default user and C compile options, which can be overidden
+USROPTS=
+COPTS=-Ofast
+
+# Common C options (don't override)
+COPTSCOMM=-I${SRCDIR}/ -Wno-write-strings -DWY65_STANDALONE
 
 CC=g++
 ASM=as65
@@ -51,21 +58,39 @@ ASM=as65
 # Test program start address
 TSTADDR=0x400
 
+# Conditionally set  options to enable coverge only if DOCOV defined
+ifdef DOCOV
+  COPTS=-g
+  COVOPTS=-coverage
+
+  # Test options to increase coverage
+  TESTCOVOPTS=-f dummy -M dummy -l 0x000a -d 0xffff -i 0xffffffff -S 0x00100000 -E0x0010ffff
+endif
+
+COVEXCL=
+LCOVINFO=${TARGET}.info
+COVLOGFILE=cov.log
+COVDIR=cov_html
+
 ##########################################################
 # Dependency definitions
 ##########################################################
 
 all: ${TARGET}
 
-${SRCDIR}/cpu6502.cpp  : ${COMMINCL:%=${SRCDIR}/%} ${TGTINCL:%=${SRCDIR}/%}
-${SRCDIR}/read_ihx.cpp : ${COMMINCL:%=${SRCDIR}/%}
+${OBJDIR}/cpu6502.o:  ${COMMINCL:%=${SRCDIR}/%} ${TGTINCL:%=${SRCDIR}/%}
+${OBJDIR}/read_ihx.o: ${COMMINCL:%=${SRCDIR}/%}
 
 ##########################################################
 # Compilation rules
 ##########################################################
 
-${TARGET}: ${SRCFILES:%=${SRCDIR}/%}
-	@${CC} ${COPTS} ${USROPTS} $^ -o $@
+${TARGET}: ${OBJECTS:%=${OBJDIR}/%}
+	@${CC} ${COPTS} ${COPTSCOMM} ${USROPTS} ${COVOPTS} $^ -o $@
+
+${OBJDIR}/%.o : ${SRCDIR}/%.cpp
+	@mkdir -p ${OBJDIR}
+	@$(CC) ${ARCHOPT} ${COPTS} ${COPTSCOMM} ${USROPTS} ${COVOPTS} -c $< -o $@ 
 
 ##########################################################
 # Test
@@ -75,16 +100,53 @@ ${TARGET}: ${SRCFILES:%=${SRCDIR}/%}
 #
 ##########################################################
 
+ifndef DOCOV
+
 ${TESTDIR}/${TESTTGT} : ${TESTDIR}/${TESTSRC}
-	@cd ${TESTDIR} && ${ASM} -s2 ${TESTSRC}
+	@cd ${TESTDIR} && ${ASM} -q -s2 ${TESTSRC}
 
 test: ${TARGET} ${TESTDIR}/${TESTTGT}
 	@${TARGET} -I ${TESTDIR}/${TESTTGT} -s ${TSTADDR}
+
+else
+
+# When DOCOV defined, run test three times for each of the input file formats
+
+${TESTDIR}/${TESTTGT} : ${TESTDIR}/${TESTSRC}
+	@cd ${TESTDIR} && ${ASM} -q ${TESTSRC} && ${ASM} -q -s ${TESTSRC} && ${ASM} -q -s2 ${TESTSRC}
+
+test: ${TARGET} ${TESTDIR}/${TESTTGT}
+	@${TARGET} ${TESTCOVOPTS} -I ${TESTDIR}/${TESTTGT}             -s ${TSTADDR}
+	@${TARGET} ${TESTCOVOPTS} -M ${TESTDIR}/${TESTTGT:%.hex=%.s19} -s ${TSTADDR}
+	@${TARGET} ${TESTCOVOPTS} -f ${TESTDIR}/${TESTTGT:%.hex=%.bin} -s ${TSTADDR}
+endif
+
+##########################################################
+# coverage
+##########################################################
+
+# Coverage target only valid if DOCOV defined
+ifdef DOCOV
+
+coverage: test
+	@lcov -c -d ${OBJDIR} -o ${LCOVINFO} > ${COVLOGFILE}
+	@lcov -r ${LCOVINFO} ${COVEXCL} -o ${LCOVINFO} >> ${COVLOGFILE}
+	@genhtml -o ${COVDIR} ${LCOVINFO} >> ${COVLOGFILE}
+
+else
+
+.PHONY: coverage
+coverage:
+	@echo "Compile with DOCOV defined (e.g. 'make clean && make DOCOV=1 coverage')"
+
+endif
 
 ##########################################################
 # Clean up rules
 ##########################################################
 
 clean:
-	@rm -rf ${TARGET} ${TESTDIR}/${TESTTGT}
+	@rm -rf ${TARGET} ${TESTDIR}/${TESTTGT} ${TESTDIR}/${TESTTGT:%.hex=%.bin} \
+	                  ${TESTDIR}/${TESTTGT:%.hex=%.s19} ${TESTDIR}/${TESTTGT:%.hex=%.lst} \
+	                  ${OBJDIR} ${COVDIR} ${LCOVINFO} ${COVLOGFILE} *.gc* ${TARGET}.log
 
