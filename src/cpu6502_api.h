@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.5 2017/01/18 12:24:07 simon Exp $
+// $Id: cpu6502_api.h,v 1.6 2017/01/24 14:30:46 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -305,16 +305,15 @@ private:
     wy65_p_writemem_t  ext_wr_mem;
     wy65_p_readmem_t   ext_rd_mem;
 
-    // CPU state
-    wy65_cpu_state_t   state;
-
     // Disassemble state
     FILE*              fp;
     uint32_t           nextPc;
 
-    // Instruction table entry array, and current selected entry
-    tbl_t              instr_tbl [WY65_INSTR_SPACE_SIZE];
-    tbl_t              curr_instr;
+    // Instruction table entry array
+    tbl_t              instr_tbl [WY65_INSTR_SPACE_SIZE]; 
+
+    // CPU state
+    wy65_cpu_state_t   state;
 };
 
 #endif

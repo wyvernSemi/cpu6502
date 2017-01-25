@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.5 2017/01/18 12:24:49 simon Exp $
+// $Id: cpu6502.cpp,v 1.7 2017/01/24 18:05:33 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -371,8 +371,8 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
     {
     case IND:
         tmp_addr      = rd_mem(p_regs->pc);
-#ifndef WY65_INDIRECT_FIX
-        tmp_addr     |= rd_mem(((p_regs->pc+1) & 0xff) | (p_regs->pc & 0xff00)) << 8;
+#ifdef WY65_INDIRECT_FIX
+        tmp_addr     |= rd_mem(((p_regs->pc+1) & MASK_8BIT) | (p_regs->pc & 0xff00)) << 8;
 #else
         tmp_addr     |= rd_mem(p_regs->pc+1) << 8;
 #endif
@@ -383,7 +383,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
         break;       
                      
     case IDX:        
-        tmp_addr      = (rd_mem(p_regs->pc) + p_regs->x) & 0xff;
+        tmp_addr      = (rd_mem(p_regs->pc) + p_regs->x) & MASK_8BIT;
         addr          = rd_mem(tmp_addr) | (rd_mem(tmp_addr+1) << 8);
         p_regs->pc   += 1;
         break;
@@ -391,7 +391,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
     case IDY:
         tmp_addr      = rd_mem(p_regs->pc);
         tmp_addr      = rd_mem(tmp_addr) | (rd_mem(tmp_addr+1) << 8);
-        addr          = tmp_addr + p_regs->y;
+        addr          = (tmp_addr + p_regs->y) & MASK_16BIT;
         pg_crossed    = ((addr ^ tmp_addr) >> 8) ? true : false;
         p_regs->pc   += 1;
         break;
@@ -403,14 +403,14 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
 
     case ABX:
         tmp_addr      = rd_mem(p_regs->pc) | (rd_mem(p_regs->pc+1) << 8);
-        addr          = tmp_addr + p_regs->x;
+        addr          = (tmp_addr + p_regs->x) & MASK_16BIT;
         pg_crossed    = ((addr ^ tmp_addr) >> 8) ? true : false;
         p_regs->pc   += 2;
         break;
 
     case ABY:
         tmp_addr      = rd_mem(p_regs->pc) | (rd_mem(p_regs->pc+1) << 8);
-        addr          = tmp_addr + p_regs->y;
+        addr          = (tmp_addr + p_regs->y) & MASK_16BIT;
         pg_crossed    = ((addr ^ tmp_addr) >> 8) ? true : false;
         p_regs->pc   += 2;
         break;
@@ -421,19 +421,19 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
         break;
 
     case ZPX:
-        addr          = (rd_mem(p_regs->pc) + p_regs->x) & 0xff;
+        addr          = (rd_mem(p_regs->pc) + p_regs->x) & MASK_8BIT;
         p_regs->pc   += 1;
         break;
 
     case ZPY:
-        addr          = (rd_mem(p_regs->pc) + p_regs->y) & 0xff;
+        addr          = (rd_mem(p_regs->pc) + p_regs->y) & MASK_8BIT;
         p_regs->pc   += 1;
         break;
 
     case REL:
         tmp_addr      = p_regs->pc + 1;                             // Location of next instruction in cpu_memory
 
-        addr          = tmp_addr + (int8_t)rd_mem(p_regs->pc);
+        addr          = (tmp_addr + (int8_t)rd_mem(p_regs->pc)) & MASK_16BIT;
         pg_crossed    = ((addr ^ tmp_addr) >> 8) ? true : false;
         p_regs->pc    = tmp_addr;                                   // Default PC to next instruction
         break;
@@ -543,11 +543,11 @@ int cpu6502::ASL (const op_t* p_op)
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & 0xff;
+        state.regs.a  = result & MASK_8BIT;
     }
     else
     {
-        wr_mem(addr, result & 0xff);
+        wr_mem(addr, result & MASK_8BIT);
     }
 
     return p_op->exec_cycles;
@@ -697,8 +697,8 @@ int cpu6502::BRK (const op_t* p_op)
     // BRK has a pad byte which needs acounting for when RTI executed
     state.regs.pc++;
 
-    wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & 0xff); state.regs.sp--;
-    wr_mem(state.regs.sp | 0x100, state.regs.pc & 0xff); state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & MASK_8BIT); state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100, state.regs.pc & MASK_8BIT); state.regs.sp--;
     wr_mem(state.regs.sp | 0x100, state.regs.flags); state.regs.sp--;
 
     state.regs.flags |= INT_MASK;
@@ -855,7 +855,7 @@ int cpu6502::DEC (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint8_t result    = rd_mem(addr) - 1;
+    int8_t result     = rd_mem(addr) - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -874,7 +874,7 @@ int cpu6502::DEX (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint8_t result    = state.regs.x - 1;
+    int8_t result     = state.regs.x - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -893,7 +893,7 @@ int cpu6502::DEY (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint8_t result    = state.regs.y - 1;
+    int8_t result     = state.regs.y - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -1001,8 +1001,8 @@ int cpu6502::JSR (const op_t* p_op)
 
     uint16_t pc_m1    = state.regs.pc - 1;
     
-    wr_mem(state.regs.sp | 0x100, (pc_m1 >> 8) & 0xff); state.regs.sp--;
-    wr_mem(state.regs.sp | 0x100,  pc_m1 & 0xff);       state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100, (pc_m1 >> 8) & MASK_8BIT); state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100,  pc_m1 & MASK_8BIT);       state.regs.sp--;
 
     state.regs.pc     = addr;
 
@@ -1078,11 +1078,11 @@ int cpu6502::LSR (const op_t* p_op)
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & 0xff;
+        state.regs.a  = result & MASK_8BIT;
     }
     else
     {
-        wr_mem(addr, result & 0xff);
+        wr_mem(addr, result & MASK_8BIT);
     }
 
     return p_op->exec_cycles;
@@ -1167,17 +1167,17 @@ int cpu6502::ROL (const op_t* p_op)
 
     state.regs.flags &= ~(ZERO_MASK | CARRY_MASK | SIGN_MASK);
 
-    state.regs.flags |= ((result & 0xff) == 0) ? ZERO_MASK  : 0;
-    state.regs.flags |= (result & 0x80)        ? SIGN_MASK  : 0;
-    state.regs.flags |= (result & 0x100)       ? CARRY_MASK : 0;
+    state.regs.flags |= ((result & MASK_8BIT) == 0) ? ZERO_MASK  : 0;
+    state.regs.flags |= (result & 0x80)             ? SIGN_MASK  : 0;
+    state.regs.flags |= (val    & 0x80)             ? CARRY_MASK : 0;
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & 0xff;
+        state.regs.a  = result & MASK_8BIT;
     }
     else
     {
-        wr_mem(addr, result & 0xff);
+        wr_mem(addr, result & MASK_8BIT);
     };
 
     return p_op->exec_cycles;
@@ -1201,11 +1201,11 @@ int cpu6502::ROR (const op_t* p_op)
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & 0xff;
+        state.regs.a  = result & MASK_8BIT;
     }
     else
     {
-        wr_mem(addr, result & 0xff);
+        wr_mem(addr, result & MASK_8BIT);
     }
 
     return p_op->exec_cycles;
@@ -1278,7 +1278,7 @@ int cpu6502::SBC (const op_t* p_op)
     else
     {
         // Store result in accumulator
-        state.regs.a  = result & 0xff;
+        state.regs.a  = result & MASK_8BIT;
     }
 
     // Return number of cycles used
@@ -1629,7 +1629,7 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
     irq();
 
     op.opcode         = rd_mem(state.regs.pc++);
-    curr_instr        = instr_tbl[op.opcode];
+    tbl_t* curr_instr = &instr_tbl[op.opcode];
 
     if (icount >= start_count && icount < stop_count)
     {
@@ -1646,11 +1646,11 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
                     state.regs.flags);
     }
 
-    op.mode           = curr_instr.addr_mode;
-    op.exec_cycles    = curr_instr.exec_cycles;
+    op.mode           = curr_instr->addr_mode;
+    op.exec_cycles    = curr_instr->exec_cycles;
 
     // Execute instruction and get number of cycles (which may be more than op.exec_cycles; e.g. page crossing)
-    num_cycles = (this->*curr_instr.pFunc)(&op);
+    num_cycles        = (this->*(*curr_instr).pFunc)(&op);
 
     state.cycles     += num_cycles;
 
@@ -1672,11 +1672,10 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
 // -------------------------------------------------------------------------
 
 void cpu6502::nmi_interrupt ()
-{
-    
-    wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & 0xff); state.regs.sp--;
-    wr_mem(state.regs.sp | 0x100, state.regs.pc & 0xff);        state.regs.sp--;
-    wr_mem(state.regs.sp | 0x100, state.regs.flags);            state.regs.sp--;
+{   
+    wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & MASK_8BIT); state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100, state.regs.pc & MASK_8BIT);        state.regs.sp--;
+    wr_mem(state.regs.sp | 0x100, state.regs.flags);                 state.regs.sp--;
 
     state.regs.flags |= INT_MASK;
 
@@ -1700,9 +1699,9 @@ void cpu6502::irq ()
 {
     if (state.nirq_line != NO_ACTIVE_IRQS && !(state.regs.flags & INT_MASK))
     {
-        wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & 0xff);  state.regs.sp--;
-        wr_mem(state.regs.sp | 0x100, state.regs.pc & 0xff);         state.regs.sp--;
-        wr_mem(state.regs.sp | 0x100, state.regs.flags & ~BRK_MASK); state.regs.sp--;
+        wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & MASK_8BIT);  state.regs.sp--;
+        wr_mem(state.regs.sp | 0x100, state.regs.pc & MASK_8BIT);         state.regs.sp--;
+        wr_mem(state.regs.sp | 0x100, state.regs.flags & ~BRK_MASK);      state.regs.sp--;
         
         state.regs.flags |= INT_MASK;
         
@@ -1893,8 +1892,8 @@ int main (int argc, char** argv)
                 "    -s Start address of program execution  (default 0x%04x)\n"
                 "    -d Debug break address                 (default 0x%04x)\n"
                 "    -i Debug instruction count             (default 0x%04x)\n"
-                "    -S Disassamble start instruction count (default 0x%08x)\n"
-                "    -E Disassamble end instruction count   (default 0x%08x)\n"
+                "    -S Disassemble start instruction count (default 0x%08x)\n"
+                "    -E Disassemble end instruction count   (default 0x%08x)\n"
                 "\n"
                           , argv[0]
                           , DEFAULT_PROG_FILE_NAME
@@ -1934,8 +1933,8 @@ int main (int argc, char** argv)
     }
 
     // Load the reset vector with the user start location, if specified
-    cpu.wr_mem(0xfffc,  start_addr       & 0xff);
-    cpu.wr_mem(0xfffd, (start_addr >> 8) & 0xff);
+    cpu.wr_mem(0xfffc,  start_addr       & MASK_8BIT);
+    cpu.wr_mem(0xfffd, (start_addr >> 8) & MASK_8BIT);
 
     // ------------------------------------
     // NMI Interrupt test
@@ -1963,8 +1962,8 @@ int main (int argc, char** argv)
         uint16_t nmi_addr = 0xfff0;
 
         // Load the NMI vector with the user start location, if specified
-        cpu.wr_mem(0xfffa,  nmi_addr       & 0xff);
-        cpu.wr_mem(0xfffb, (nmi_addr >> 8) & 0xff);
+        cpu.wr_mem(0xfffa,  nmi_addr       & MASK_8BIT);
+        cpu.wr_mem(0xfffb, (nmi_addr >> 8) & MASK_8BIT);
 
         // Load NMI address with a NOP
         cpu.wr_mem(nmi_addr,    0xEA); // Load a NOP opcode
@@ -2013,8 +2012,8 @@ int main (int argc, char** argv)
         old_irq_vec |= cpu.rd_mem(0xffff) << 8;
 
         // Load the IRQ vector with the user start location, if specified
-        cpu.wr_mem(0xfffe,  irq_addr       & 0xff);
-        cpu.wr_mem(0xffff, (irq_addr >> 8) & 0xff);
+        cpu.wr_mem(0xfffe,  irq_addr       & MASK_8BIT);
+        cpu.wr_mem(0xffff, (irq_addr >> 8) & MASK_8BIT);
 
         // Load IRQ address with a NOP
         cpu.wr_mem(irq_addr,    0xEA); // Load a NOP opcode
@@ -2040,8 +2039,8 @@ int main (int argc, char** argv)
         }
 
         // Restore IRQ vector (for BRK instruction testing in main test)
-        cpu.wr_mem(0xfffe,  old_irq_vec       & 0xff);
-        cpu.wr_mem(0xffff, (old_irq_vec >> 8) & 0xff);
+        cpu.wr_mem(0xfffe,  old_irq_vec       & MASK_8BIT);
+        cpu.wr_mem(0xffff, (old_irq_vec >> 8) & MASK_8BIT);
     }
 
     // ------------------------------------
@@ -2051,8 +2050,8 @@ int main (int argc, char** argv)
     if (!error)
     {
         // Load failure status to nominated location
-        cpu.wr_mem(0xfff8,  BAD_TEST_STATUS       & 0xff);
-        cpu.wr_mem(0xfff9, (BAD_TEST_STATUS >> 8) & 0xff);
+        cpu.wr_mem(0xfff8,  BAD_TEST_STATUS       & MASK_8BIT);
+        cpu.wr_mem(0xfff9, (BAD_TEST_STATUS >> 8) & MASK_8BIT);
 
         // Assert a reset
         cpu.reset();

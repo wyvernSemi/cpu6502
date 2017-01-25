@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.h,v 1.1 2017/01/12 09:17:03 simon Exp $
+// $Id: cpu6502.h,v 1.2 2017/01/24 18:04:57 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.h,v $
 //
 //=============================================================
@@ -86,5 +86,9 @@ extern int optind;
 #define RST_CYCLES               0 /* Should be 7? */
 
 #define INVALID_NEXT_PC          0xffffffff
+
+#define MASK_8BIT                0xff
+#define MASK_16BIT               0xffff
+#define MASK_32BIT               0xffffffff
 
 #endif
