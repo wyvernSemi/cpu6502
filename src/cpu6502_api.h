@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.6 2017/01/24 14:30:46 simon Exp $
+// $Id: cpu6502_api.h,v 1.7 2017/01/27 11:21:48 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -64,6 +64,15 @@
 // TYPE DEFINITIONS
 // -------------------------------------------------------------------------
 
+// Enumerated type for opcode variant modes
+enum cpu_type_e {
+    BASE = 0, // base MOS6502 instructions
+    C02  = 1, // instructions introduced by 65C02
+    WRK  = 2, // Additional instructions in WDC and Rockwell
+    WDC  = 3, // Addition WDC only instructions
+    DEFAULT   // Use default (or existing) mode
+};
+
 // Structure for return status of wy65_execute() function
 typedef struct 
 {
@@ -92,7 +101,9 @@ typedef struct
     wy65_reg_t        regs;
     uint64_t          cycles;
     uint16_t          nirq_line;
-
+    cpu_type_e        mode_c;
+    bool              waiting;
+    bool              stopped;
 } wy65_cpu_state_t;
 
 // Define required types for external memory access functions
@@ -122,6 +133,9 @@ private:
         ZPY,
         ACC,
         REL,
+        ZPR, // WDC65C02 only
+        IAX, // 65C02
+        IDZ, // 65C02
         NON
     };
 
@@ -144,7 +158,7 @@ private:
         pInstrFunc_t      pFunc;
         uint32_t          exec_cycles;
         addr_mode_e       addr_mode;
-    
+        cpu_type_e        cpu_type;
     } tbl_t; 
 
 // Public methods
@@ -153,8 +167,9 @@ public:
     // Constructor
                        cpu6502(); 
 
-    // Reset function. Also clears cycle count and any active IRQ lines.
-    void               reset              (void);
+    // Reset function. Also clears cycle count and any active IRQ lines. Sets
+    // supported opcode mode (default BASE)
+    void               reset              (cpu_type_e mode                 = DEFAULT);
 
     // Generate an NMI. NMI is falling edge triggered, and this function call
     // emulates this single event.
@@ -206,11 +221,12 @@ private:
     uint32_t           calc_addr          (const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg_crossed);
 
     // Utility method to set an entry in the instruction table
-    inline void        set_tbl_entry      (tbl_t &t, char* s, pInstrFunc_t f, uint32_t c, addr_mode_e m) {
+    inline void        set_tbl_entry      (tbl_t &t, char* s, pInstrFunc_t f, uint32_t c, addr_mode_e m, cpu_type_e cpu) {
                                               t.op_str      =  s;
                                               t.pFunc       =  f;
                                               t.exec_cycles =  c;
                                               t.addr_mode   =  m;
+                                              t.cpu_type    =  cpu;
                                           };
     // Utility to write program data to memory
     void               prog_write_data    (const uint32_t byte_count, const uint32_t addr, const uint8_t* buf_ptr);
@@ -240,14 +256,14 @@ private:
                                                    return state.mem[addr]; 
                                            };
 private:
-    // Instructions functions
-    int                ADC                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X
-    int                AND                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X
-    int                ASL                (const op_t* op); // - Absolute; Absolute,X; Accumulator; Zero Page; Zero Page,X                  
+    // Instructions functions for base 6502 implementation
+    int                ADC                (const op_t* op);
+    int                AND                (const op_t* op);
+    int                ASL                (const op_t* op);
     int                BCC                (const op_t* op);
     int                BCS                (const op_t* op);
     int                BEQ                (const op_t* op);
-    int                BIT                (const op_t* op); // - Absolute; Zero Page
+    int                BIT                (const op_t* op);
     int                BMI                (const op_t* op);
     int                BNE                (const op_t* op);
     int                BPL                (const op_t* op);
@@ -256,47 +272,63 @@ private:
     int                BVS                (const op_t* op);
     int                CLC                (const op_t* op);
     int                CLD                (const op_t* op);
-    int                CLI                (const op_t* op); 
+    int                CLI                (const op_t* op);
     int                CLV                (const op_t* op);
-    int                CMP                (const op_t* op); // - (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X; (Indirect@,Y                   
-    int                CPX                (const op_t* op); // - Absolute; Immediate; Zero Page
-    int                CPY                (const op_t* op); // - Absolute; Immediate; Zero Page            
-    int                DEC                (const op_t* op); // - Absolute; Absolute,X; Zero Page; Zero Page,X                    
-    int                DEX                (const op_t* op);          
-    int                DEY                (const op_t* op);        
-    int                EOR                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X 
-    int                INC                (const op_t* op); // - Absolute; Absolute,X; Zero Page; Zero Page,X
+    int                CMP                (const op_t* op);                
+    int                CPX                (const op_t* op);
+    int                CPY                (const op_t* op);
+    int                DEC                (const op_t* op);
+    int                DEX                (const op_t* op);
+    int                DEY                (const op_t* op);
+    int                EOR                (const op_t* op);
+    int                INC                (const op_t* op);
     int                INX                (const op_t* op);
     int                INY                (const op_t* op);
-    int                JMP                (const op_t* op); // - Absolute; Indirect
+    int                JMP                (const op_t* op);
     int                JSR                (const op_t* op);
-    int                LDA                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X
-    int                LDX                (const op_t* op); // - Absolute; Absolute,Y; Immediate; Zero Page; Zero Page,Y
-    int                LDY                (const op_t* op); // - Absolute; Absolute,X; Immediate; Zero Page; Zero Page,X
-    int                LSR                (const op_t* op); // - Absolute; Absolute,X; Accumulator; Zero Page; Zero Page,X          
+    int                LDA                (const op_t* op);
+    int                LDX                (const op_t* op);
+    int                LDY                (const op_t* op);
+    int                LSR                (const op_t* op);
     int                NOP                (const op_t* op);
-    int                ORA                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X          
+    int                ORA                (const op_t* op);       
     int                PHA                (const op_t* op);
     int                PHP                (const op_t* op);
     int                PLA                (const op_t* op);
-    int                PLP                (const op_t* op); //
-    int                ROL                (const op_t* op); // - Absolute; Absolute,X; Accumulator; Zero Page; Zero Page,X
-    int                ROR                (const op_t* op); // - Absolute; Absolute,X; Accumulator; Zero Page; Zero Page,X         
+    int                PLP                (const op_t* op);
+    int                ROL                (const op_t* op);
+    int                ROR                (const op_t* op);
     int                RTI                (const op_t* op);
     int                RTS                (const op_t* op);
-    int                SBC                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Immediate; Zero Page; Zero Page,X
+    int                SBC                (const op_t* op);
     int                SEC                (const op_t* op);
     int                SED                (const op_t* op);
     int                SEI                (const op_t* op);
-    int                STA                (const op_t* op); // - (Indirect),Y; (Indirect,X); Absolute; Absolute,X; Absolute,Y; Zero Page; Zero Page,X          
-    int                STX                (const op_t* op); // - Absolute; Zero Page; Zero Page,Y                   
-    int                STY                (const op_t* op); // - Absolute; Zero Page; Zero Page,X          
+    int                STA                (const op_t* op);
+    int                STX                (const op_t* op);
+    int                STY                (const op_t* op);
     int                TAX                (const op_t* op);
     int                TAY                (const op_t* op);
     int                TSX                (const op_t* op);
-    int                TXA                (const op_t* op);         
-    int                TXS                (const op_t* op);       
+    int                TXA                (const op_t* op);
+    int                TXS                (const op_t* op);
     int                TYA                (const op_t* op);
+
+    // Functions for 65C02/WDC65C02 instructions
+    int                BBR                (const op_t* op);
+    int                BBS                (const op_t* op);
+    int                RMB                (const op_t* op);
+    int                SMB                (const op_t* op);
+    int                BRA                (const op_t* op);
+    int                TRB                (const op_t* op);
+    int                TSB                (const op_t* op);
+    int                STZ                (const op_t* op);
+    int                PHX                (const op_t* op);
+    int                PHY                (const op_t* op);
+    int                PLX                (const op_t* op);
+    int                PLY                (const op_t* op);
+    int                WAI                (const op_t* op);
+    int                STP                (const op_t* op);
 
 // Private member variables
 private:

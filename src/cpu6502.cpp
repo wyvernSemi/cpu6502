@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.7 2017/01/24 18:05:33 simon Exp $
+// $Id: cpu6502.cpp,v 1.11 2017/01/30 14:56:47 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -85,266 +85,269 @@ cpu6502::cpu6502()
     ext_rd_mem        = NULL;
     fp                = NULL;
     nextPc            = INVALID_NEXT_PC;
+    state.waiting     = false;
+    state.stopped     = false;
+    state.mode_c      = BASE;
 
     // Initialise instruction table
     int idx           = 0;
 
-    set_tbl_entry(instr_tbl[idx++], "BRK", &cpu6502::BRK, 7, NON  /* 0x00 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 6, IDX  /* 0x01 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x02 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x03 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x04 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 3, ZPG  /* 0x05 */);
-    set_tbl_entry(instr_tbl[idx++], "ASL", &cpu6502::ASL, 5, ZPG  /* 0x06 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 5, NON  /* 0x07 */);
-    set_tbl_entry(instr_tbl[idx++], "PHP", &cpu6502::PHP, 3, NON  /* 0x08 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 2, IMM  /* 0x09 */);
-    set_tbl_entry(instr_tbl[idx++], "ASL", &cpu6502::ASL, 2, ACC  /* 0x0A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x0B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x0C */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 4, ABS  /* 0x0D */);
-    set_tbl_entry(instr_tbl[idx++], "ASL", &cpu6502::ASL, 6, ABS  /* 0x0E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x0F */);
-    set_tbl_entry(instr_tbl[idx++], "BPL", &cpu6502::BPL, 2, REL  /* 0x10 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 5, IDY  /* 0x11 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x12 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x13 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x14 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 4, ZPX  /* 0x15 */);
-    set_tbl_entry(instr_tbl[idx++], "ASL", &cpu6502::ASL, 6, ZPX  /* 0x16 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x17 */);
-    set_tbl_entry(instr_tbl[idx++], "CLC", &cpu6502::CLC, 2, NON  /* 0x18 */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 4, ABY  /* 0x19 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0x1A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x1B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x1C */);
-    set_tbl_entry(instr_tbl[idx++], "ORA", &cpu6502::ORA, 4, ABX  /* 0x1D */);
-    set_tbl_entry(instr_tbl[idx++], "ASL", &cpu6502::ASL, 7, ABX  /* 0x1E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x1F */);
-    set_tbl_entry(instr_tbl[idx++], "JSR", &cpu6502::JSR, 6, ABS  /* 0x20 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 6, IDX  /* 0x21 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x22 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x23 */);
-    set_tbl_entry(instr_tbl[idx++], "BIT", &cpu6502::BIT, 3, ZPG  /* 0x24 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 3, ZPG  /* 0x25 */);
-    set_tbl_entry(instr_tbl[idx++], "ROL", &cpu6502::ROL, 5, ZPG  /* 0x26 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x27 */);
-    set_tbl_entry(instr_tbl[idx++], "PLP", &cpu6502::PLP, 4, NON  /* 0x28 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 2, IMM  /* 0x29 */);
-    set_tbl_entry(instr_tbl[idx++], "ROL", &cpu6502::ROL, 2, ACC  /* 0x2A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x2B */);
-    set_tbl_entry(instr_tbl[idx++], "BIT", &cpu6502::BIT, 4, ABS  /* 0x2C */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 4, ABS  /* 0x2D */);
-    set_tbl_entry(instr_tbl[idx++], "ROL", &cpu6502::ROL, 6, ABS  /* 0x2E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x2F */);
-    set_tbl_entry(instr_tbl[idx++], "BMI", &cpu6502::BMI, 2, REL  /* 0x30 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 5, IDY  /* 0x31 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x32 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x33 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x34 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 4, ZPX  /* 0x35 */);
-    set_tbl_entry(instr_tbl[idx++], "ROL", &cpu6502::ROL, 6, ZPX  /* 0x36 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x37 */);
-    set_tbl_entry(instr_tbl[idx++], "SEC", &cpu6502::SEC, 2, NON  /* 0x38 */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 4, ABY  /* 0x39 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0x3A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x3B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x3C */);
-    set_tbl_entry(instr_tbl[idx++], "AND", &cpu6502::AND, 4, ABX  /* 0x3D */);
-    set_tbl_entry(instr_tbl[idx++], "ROL", &cpu6502::ROL, 7, ABX  /* 0x3E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x3F */);
-    set_tbl_entry(instr_tbl[idx++], "RTI", &cpu6502::RTI, 6, NON  /* 0x40 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 6, IDX  /* 0x41 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x42 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x43 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x44 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 3, ZPG  /* 0x45 */);
-    set_tbl_entry(instr_tbl[idx++], "LSR", &cpu6502::LSR, 5, ZPG  /* 0x46 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x47 */);
-    set_tbl_entry(instr_tbl[idx++], "PHA", &cpu6502::PHA, 3, NON  /* 0x48 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 2, IMM  /* 0x49 */);
-    set_tbl_entry(instr_tbl[idx++], "LSR", &cpu6502::LSR, 2, ACC  /* 0x4A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 2, IMM  /* 0x4B */);
-    set_tbl_entry(instr_tbl[idx++], "JMP", &cpu6502::JMP, 3, ABS  /* 0x4C */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 4, ABS  /* 0x4D */);
-    set_tbl_entry(instr_tbl[idx++], "LSR", &cpu6502::LSR, 6, ABS  /* 0x4E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x4F */);
-    set_tbl_entry(instr_tbl[idx++], "BVC", &cpu6502::BVC, 2, REL  /* 0x50 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 5, IDY  /* 0x51 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x52 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x53 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x54 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 4, ZPX  /* 0x55 */);
-    set_tbl_entry(instr_tbl[idx++], "LSR", &cpu6502::LSR, 6, ZPX  /* 0x56 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x57 */);
-    set_tbl_entry(instr_tbl[idx++], "CLI", &cpu6502::CLI, 2, NON  /* 0x58 */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 4, ABY  /* 0x59 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0x5A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x5B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x5C */);
-    set_tbl_entry(instr_tbl[idx++], "EOR", &cpu6502::EOR, 4, ABX  /* 0x5D */);
-    set_tbl_entry(instr_tbl[idx++], "LSR", &cpu6502::LSR, 7, ABX  /* 0x5E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x5F */);
-    set_tbl_entry(instr_tbl[idx++], "RTS", &cpu6502::RTS, 6, NON  /* 0x60 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 6, IDX  /* 0x61 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x62 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x63 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x64 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 3, ZPG  /* 0x65 */);
-    set_tbl_entry(instr_tbl[idx++], "ROR", &cpu6502::ROR, 5, ZPG  /* 0x66 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x67 */);
-    set_tbl_entry(instr_tbl[idx++], "PLA", &cpu6502::PLA, 4, NON  /* 0x68 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 2, IMM  /* 0x69 */);
-    set_tbl_entry(instr_tbl[idx++], "ROR", &cpu6502::ROR, 2, ACC  /* 0x6A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x6B */);
-    set_tbl_entry(instr_tbl[idx++], "JMP", &cpu6502::JMP, 5, IND  /* 0x6C */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 4, ABS  /* 0x6D */);
-    set_tbl_entry(instr_tbl[idx++], "ROR", &cpu6502::ROR, 6, ABS  /* 0x6E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x6F */);
-    set_tbl_entry(instr_tbl[idx++], "BVS", &cpu6502::BVS, 2, REL  /* 0x70 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 5, IDY  /* 0x71 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x72 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x73 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x74 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 4, ZPX  /* 0x75 */);
-    set_tbl_entry(instr_tbl[idx++], "ROR", &cpu6502::ROR, 6, ZPX  /* 0x76 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x77 */);
-    set_tbl_entry(instr_tbl[idx++], "SEI", &cpu6502::SEI, 2, NON  /* 0x78 */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 4, ABY  /* 0x79 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0x7A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x7B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x7C */);
-    set_tbl_entry(instr_tbl[idx++], "ADC", &cpu6502::ADC, 4, ABX  /* 0x7D */);
-    set_tbl_entry(instr_tbl[idx++], "ROR", &cpu6502::ROR, 7, ABX  /* 0x7E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x7F */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 2, NON  /* 0x80 */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 6, IDX  /* 0x81 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x82 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x83 */);
-    set_tbl_entry(instr_tbl[idx++], "STY", &cpu6502::STY, 3, ZPG  /* 0x84 */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 3, ZPG  /* 0x85 */);
-    set_tbl_entry(instr_tbl[idx++], "STX", &cpu6502::STX, 3, ZPG  /* 0x86 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0x87 */);
-    set_tbl_entry(instr_tbl[idx++], "DEY", &cpu6502::DEY, 2, NON  /* 0x88 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x89 */);
-    set_tbl_entry(instr_tbl[idx++], "TXA", &cpu6502::TXA, 2, NON  /* 0x8A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x8B */);
-    set_tbl_entry(instr_tbl[idx++], "STY", &cpu6502::STY, 4, ABS  /* 0x8C */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 4, ABS  /* 0x8D */);
-    set_tbl_entry(instr_tbl[idx++], "STX", &cpu6502::STX, 4, ABS  /* 0x8E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x8F */);
-    set_tbl_entry(instr_tbl[idx++], "BCC", &cpu6502::BCC, 2, REL  /* 0x90 */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 6, IDY  /* 0x91 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x92 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x93 */);
-    set_tbl_entry(instr_tbl[idx++], "STY", &cpu6502::STY, 4, ZPX  /* 0x94 */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 4, ZPX  /* 0x95 */);
-    set_tbl_entry(instr_tbl[idx++], "STX", &cpu6502::STX, 4, ZPY  /* 0x96 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x97 */);
-    set_tbl_entry(instr_tbl[idx++], "TYA", &cpu6502::TYA, 2, NON  /* 0x98 */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 5, ABY  /* 0x99 */);
-    set_tbl_entry(instr_tbl[idx++], "TXS", &cpu6502::TXS, 2, NON  /* 0x9A */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0x9B */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x9C */);
-    set_tbl_entry(instr_tbl[idx++], "STA", &cpu6502::STA, 5, ABX  /* 0x9D */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x9E */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0x9F */);
-    set_tbl_entry(instr_tbl[idx++], "LDY", &cpu6502::LDY, 2, IMM  /* 0xA0 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 6, IDX  /* 0xA1 */);
-    set_tbl_entry(instr_tbl[idx++], "LDX", &cpu6502::LDX, 2, IMM  /* 0xA2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xA3 */);
-    set_tbl_entry(instr_tbl[idx++], "LDY", &cpu6502::LDY, 3, ZPG  /* 0xA4 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 3, ZPG  /* 0xA5 */);
-    set_tbl_entry(instr_tbl[idx++], "LDX", &cpu6502::LDX, 3, ZPG  /* 0xA6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xA7 */);
-    set_tbl_entry(instr_tbl[idx++], "TAY", &cpu6502::TAY, 2, NON  /* 0xA8 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 2, IMM  /* 0xA9 */);
-    set_tbl_entry(instr_tbl[idx++], "TAX", &cpu6502::TAX, 2, NON  /* 0xAA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xAB */);
-    set_tbl_entry(instr_tbl[idx++], "LDY", &cpu6502::LDY, 4, ABS  /* 0xAC */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 4, ABS  /* 0xAD */);
-    set_tbl_entry(instr_tbl[idx++], "LDX", &cpu6502::LDX, 4, ABS  /* 0xAE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xAF */);
-    set_tbl_entry(instr_tbl[idx++], "BCS", &cpu6502::BCS, 2, REL  /* 0xB0 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 5, IDY  /* 0xB1 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xB2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xB3 */);
-    set_tbl_entry(instr_tbl[idx++], "LDY", &cpu6502::LDY, 4, ZPX  /* 0xB4 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 4, ZPX  /* 0xB5 */);
-    set_tbl_entry(instr_tbl[idx++], "LDX", &cpu6502::LDX, 4, ZPY  /* 0xB6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xB7 */);
-    set_tbl_entry(instr_tbl[idx++], "CLV", &cpu6502::CLV, 2, NON  /* 0xB8 */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 4, ABY  /* 0xB9 */);
-    set_tbl_entry(instr_tbl[idx++], "TSX", &cpu6502::TSX, 2, NON  /* 0xBA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xBB */);
-    set_tbl_entry(instr_tbl[idx++], "LDY", &cpu6502::LDY, 4, ABX  /* 0xBC */);
-    set_tbl_entry(instr_tbl[idx++], "LDA", &cpu6502::LDA, 4, ABX  /* 0xBD */);
-    set_tbl_entry(instr_tbl[idx++], "LDX", &cpu6502::LDX, 4, ABY  /* 0xBE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xBF */);
-    set_tbl_entry(instr_tbl[idx++], "CPY", &cpu6502::CPY, 2, IMM  /* 0xC0 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 6, IDX  /* 0xC1 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xC2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xC3 */);
-    set_tbl_entry(instr_tbl[idx++], "CPY", &cpu6502::CPY, 3, ZPG  /* 0xC4 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 3, ZPG  /* 0xC5 */);
-    set_tbl_entry(instr_tbl[idx++], "DEC", &cpu6502::DEC, 5, ZPG  /* 0xC6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xC7 */);
-    set_tbl_entry(instr_tbl[idx++], "INY", &cpu6502::INY, 2, NON  /* 0xC8 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 2, IMM  /* 0xC9 */);
-    set_tbl_entry(instr_tbl[idx++], "DEX", &cpu6502::DEX, 2, NON  /* 0xCA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xCB */);
-    set_tbl_entry(instr_tbl[idx++], "CPY", &cpu6502::CPY, 4, ABS  /* 0xCC */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 4, ABS  /* 0xCD */);
-    set_tbl_entry(instr_tbl[idx++], "DEC", &cpu6502::DEC, 6, ABS  /* 0xCE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xCF */);
-    set_tbl_entry(instr_tbl[idx++], "BNE", &cpu6502::BNE, 2, REL  /* 0xD0 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 5, IDY  /* 0xD1 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xD2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xD3 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xD4 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 4, ZPX  /* 0xD5 */);
-    set_tbl_entry(instr_tbl[idx++], "DEC", &cpu6502::DEC, 6, ZPX  /* 0xD6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xD7 */);
-    set_tbl_entry(instr_tbl[idx++], "CLD", &cpu6502::CLD, 2, NON  /* 0xD8 */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 4, ABY  /* 0xD9 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0xDA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xDB */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xDC */);
-    set_tbl_entry(instr_tbl[idx++], "CMP", &cpu6502::CMP, 4, ABX  /* 0xDD */);
-    set_tbl_entry(instr_tbl[idx++], "DEC", &cpu6502::DEC, 7, ABX  /* 0xDE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xDF */);
-    set_tbl_entry(instr_tbl[idx++], "CPX", &cpu6502::CPX, 2, IMM  /* 0xE0 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 6, IDX  /* 0xE1 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xE2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xE3 */);
-    set_tbl_entry(instr_tbl[idx++], "CPX", &cpu6502::CPX, 3, ZPG  /* 0xE4 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 3, ZPG  /* 0xE5 */);
-    set_tbl_entry(instr_tbl[idx++], "INC", &cpu6502::INC, 5, ZPG  /* 0xE6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xE7 */);
-    set_tbl_entry(instr_tbl[idx++], "INX", &cpu6502::INX, 2, NON  /* 0xE8 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 2, IMM  /* 0xE9 */);
-    set_tbl_entry(instr_tbl[idx++], "NOP", &cpu6502::NOP, 2, NON  /* 0xEA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xEB */);
-    set_tbl_entry(instr_tbl[idx++], "CPX", &cpu6502::CPX, 4, ABS  /* 0xEC */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 4, ABS  /* 0xED */);
-    set_tbl_entry(instr_tbl[idx++], "INC", &cpu6502::INC, 6, ABS  /* 0xEE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xEF */);
-    set_tbl_entry(instr_tbl[idx++], "BEQ", &cpu6502::BEQ, 2, REL  /* 0xF0 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 5, IDY  /* 0xF1 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xF2 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xF3 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xF4 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 4, ZPX  /* 0xF5 */);
-    set_tbl_entry(instr_tbl[idx++], "INC", &cpu6502::INC, 6, ZPX  /* 0xF6 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xF7 */);
-    set_tbl_entry(instr_tbl[idx++], "SED", &cpu6502::SED, 2, NON  /* 0xF8 */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 4, ABY  /* 0xF9 */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, NON  /* 0xFA */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, IMM  /* 0xFB */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xFC */);
-    set_tbl_entry(instr_tbl[idx++], "SBC", &cpu6502::SBC, 4, ABX  /* 0xFD */);
-    set_tbl_entry(instr_tbl[idx++], "INC", &cpu6502::INC, 7, ABX  /* 0xFE */);
-    set_tbl_entry(instr_tbl[idx++], "XXX", &cpu6502::NOP, 3, ABS  /* 0xFF */);
+    set_tbl_entry(instr_tbl[idx++], "BRK",  &cpu6502::BRK, 7, NON, BASE /* 0x00 */);
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 6, IDX, BASE /* 0x01 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0x02 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x03 */);
+    set_tbl_entry(instr_tbl[idx++], "TSB",  &cpu6502::TSB, 5, ZPG, C02  /* 0x04 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 3, ZPG, BASE /* 0x05 */);
+    set_tbl_entry(instr_tbl[idx++], "ASL",  &cpu6502::ASL, 5, ZPG, BASE /* 0x06 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB0", &cpu6502::RMB, 5, ZPG, WRK  /* 0x07 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "PHP",  &cpu6502::PHP, 3, NON, BASE /* 0x08 */);
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 2, IMM, BASE /* 0x09 */);
+    set_tbl_entry(instr_tbl[idx++], "ASL",  &cpu6502::ASL, 2, ACC, BASE /* 0x0A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x0B */);
+    set_tbl_entry(instr_tbl[idx++], "TSB",  &cpu6502::TSB, 6, ABS, C02  /* 0x0C */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 4, ABS, BASE /* 0x0D */);
+    set_tbl_entry(instr_tbl[idx++], "ASL",  &cpu6502::ASL, 6, ABS, BASE /* 0x0E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR0", &cpu6502::BBR, 5, ZPR, WRK  /* 0x0F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BPL",  &cpu6502::BPL, 2, REL, BASE /* 0x10 */);
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 5, IDY, BASE /* 0x11 */);
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 5, IDZ, C02  /* 0x12 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x13 */);
+    set_tbl_entry(instr_tbl[idx++], "TRB",  &cpu6502::TRB, 5, ZPG, C02  /* 0x14 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 4, ZPX, BASE /* 0x15 */);
+    set_tbl_entry(instr_tbl[idx++], "ASL",  &cpu6502::ASL, 6, ZPX, BASE /* 0x16 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB1", &cpu6502::RMB, 5, ZPG, WRK  /* 0x17 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CLC",  &cpu6502::CLC, 2, NON, BASE /* 0x18 */);
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 4, ABY, BASE /* 0x19 */);
+    set_tbl_entry(instr_tbl[idx++], "INC",  &cpu6502::INC, 2, ACC, C02  /* 0x1A */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x1B */);
+    set_tbl_entry(instr_tbl[idx++], "TRB",  &cpu6502::TRB, 6, ABS, C02  /* 0x1C */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ORA",  &cpu6502::ORA, 4, ABX, BASE /* 0x1D */);
+    set_tbl_entry(instr_tbl[idx++], "ASL",  &cpu6502::ASL, 7, ABX, BASE /* 0x1E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR1", &cpu6502::BBR, 5, ZPR, WRK  /* 0x1F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "JSR",  &cpu6502::JSR, 6, ABS, BASE /* 0x20 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 6, IDX, BASE /* 0x21 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0x22 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x23 */);
+    set_tbl_entry(instr_tbl[idx++], "BIT",  &cpu6502::BIT, 3, ZPG, BASE /* 0x24 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 3, ZPG, BASE /* 0x25 */);
+    set_tbl_entry(instr_tbl[idx++], "ROL",  &cpu6502::ROL, 5, ZPG, BASE /* 0x26 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB2", &cpu6502::RMB, 5, ZPG, WRK  /* 0x27 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "PLP",  &cpu6502::PLP, 4, NON, BASE /* 0x28 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 2, IMM, BASE /* 0x29 */);
+    set_tbl_entry(instr_tbl[idx++], "ROL",  &cpu6502::ROL, 2, ACC, BASE /* 0x2A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x2B */);
+    set_tbl_entry(instr_tbl[idx++], "BIT",  &cpu6502::BIT, 4, ABS, BASE /* 0x2C */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 4, ABS, BASE /* 0x2D */);
+    set_tbl_entry(instr_tbl[idx++], "ROL",  &cpu6502::ROL, 6, ABS, BASE /* 0x2E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR2", &cpu6502::BBR, 5, ZPR, WRK  /* 0x2F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BMI",  &cpu6502::BMI, 2, REL, BASE /* 0x30 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 5, IDY, BASE /* 0x31 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 5, IDZ, C02  /* 0x32 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x33 */);
+    set_tbl_entry(instr_tbl[idx++], "BIT",  &cpu6502::BIT, 4, ZPX, C02  /* 0x34 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 4, ZPX, BASE /* 0x35 */);
+    set_tbl_entry(instr_tbl[idx++], "ROL",  &cpu6502::ROL, 6, ZPX, BASE /* 0x36 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB3", &cpu6502::RMB, 5, ZPG, WRK  /* 0x37 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "SEC",  &cpu6502::SEC, 2, NON, BASE /* 0x38 */);
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 4, ABY, BASE /* 0x39 */);
+    set_tbl_entry(instr_tbl[idx++], "DEC",  &cpu6502::DEC, 2, ACC, C02  /* 0x3A */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x3B */);
+    set_tbl_entry(instr_tbl[idx++], "BIT",  &cpu6502::BIT, 4, ABX, C02  /* 0x3C */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "AND",  &cpu6502::AND, 4, ABX, BASE /* 0x3D */);
+    set_tbl_entry(instr_tbl[idx++], "ROL",  &cpu6502::ROL, 7, ABX, BASE /* 0x3E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR3", &cpu6502::BBR, 5, ZPR, WRK  /* 0x3F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "RTI",  &cpu6502::RTI, 6, NON, BASE /* 0x40 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 6, IDX, BASE /* 0x41 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0x42 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x43 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 3, ZPG, C02  /* 0x44 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 3, ZPG, BASE /* 0x45 */);
+    set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 5, ZPG, BASE /* 0x46 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB4", &cpu6502::RMB, 5, ZPG, WRK  /* 0x47 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "PHA",  &cpu6502::PHA, 3, NON, BASE /* 0x48 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 2, IMM, BASE /* 0x49 */);
+    set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 2, ACC, BASE /* 0x4A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x4B */);
+    set_tbl_entry(instr_tbl[idx++], "JMP",  &cpu6502::JMP, 3, ABS, BASE /* 0x4C */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 4, ABS, BASE /* 0x4D */);
+    set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 6, ABS, BASE /* 0x4E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR4", &cpu6502::BBR, 5, ZPR, WRK  /* 0x4F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BVC",  &cpu6502::BVC, 2, REL, BASE /* 0x50 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 5, IDY, BASE /* 0x51 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 5, IDZ, BASE /* 0x52 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x53 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 4, ZPX, C02  /* 0x54 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 4, ZPX, BASE /* 0x55 */);
+    set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 6, ZPX, BASE /* 0x56 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB5", &cpu6502::RMB, 5, ZPG, WRK  /* 0x57 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CLI",  &cpu6502::CLI, 2, NON, BASE /* 0x58 */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 4, ABY, BASE /* 0x59 */);
+    set_tbl_entry(instr_tbl[idx++], "PHY",  &cpu6502::PHY, 3, NON, C02  /* 0x5A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x5B */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 8, ABX, C02  /* 0x5C */);
+    set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 4, ABX, BASE /* 0x5D */);
+    set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 7, ABX, BASE /* 0x5E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR5", &cpu6502::BBR, 5, ZPR, WRK  /* 0x5F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "RTS",  &cpu6502::RTS, 6, NON, BASE /* 0x60 */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 6, IDX, BASE /* 0x61 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0x62 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x63 */);
+    set_tbl_entry(instr_tbl[idx++], "STZ",  &cpu6502::STZ, 3, ZPG, C02  /* 0x64 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 3, ZPG, BASE /* 0x65 */);
+    set_tbl_entry(instr_tbl[idx++], "ROR",  &cpu6502::ROR, 5, ZPG, BASE /* 0x66 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB6", &cpu6502::RMB, 5, ZPG, WRK  /* 0x67 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "PLA",  &cpu6502::PLA, 4, NON, BASE /* 0x68 */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 2, IMM, BASE /* 0x69 */);
+    set_tbl_entry(instr_tbl[idx++], "ROR",  &cpu6502::ROR, 2, ACC, BASE /* 0x6A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x6B */);
+    set_tbl_entry(instr_tbl[idx++], "JMP",  &cpu6502::JMP, 5, IND, BASE /* 0x6C */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 4, ABS, BASE /* 0x6D */);
+    set_tbl_entry(instr_tbl[idx++], "ROR",  &cpu6502::ROR, 6, ABS, BASE /* 0x6E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR6", &cpu6502::BBR, 5, ZPR, WRK  /* 0x6F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BVS",  &cpu6502::BVS, 2, REL, BASE /* 0x70 */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 5, IDY, BASE /* 0x71 */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 5, IDZ, C02  /* 0x72 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x73 */);
+    set_tbl_entry(instr_tbl[idx++], "STZ",  &cpu6502::STZ, 4, ZPX, C02  /* 0x74 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 4, ZPX, BASE /* 0x75 */);
+    set_tbl_entry(instr_tbl[idx++], "ROR",  &cpu6502::ROR, 6, ZPX, BASE /* 0x76 */);
+    set_tbl_entry(instr_tbl[idx++], "RMB7", &cpu6502::RMB, 5, ZPG, WRK  /* 0x77 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "SEI",  &cpu6502::SEI, 2, NON, BASE /* 0x78 */);
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 4, ABY, BASE /* 0x79 */);
+    set_tbl_entry(instr_tbl[idx++], "PLY",  &cpu6502::PLY, 4, NON, C02  /* 0x7A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x7B */);
+    set_tbl_entry(instr_tbl[idx++], "JMP",  &cpu6502::JMP, 6, IAX, C02  /* 0x7C */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "ADC",  &cpu6502::ADC, 4, ABX, BASE /* 0x7D */);
+    set_tbl_entry(instr_tbl[idx++], "ROR",  &cpu6502::ROR, 7, ABX, BASE /* 0x7E */);
+    set_tbl_entry(instr_tbl[idx++], "BBR7", &cpu6502::BBR, 5, ZPR, WRK  /* 0x7F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BRA",  &cpu6502::BRA, 3, REL, C02  /* 0x80 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 6, IDX, BASE /* 0x81 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0x82 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x83 */);
+    set_tbl_entry(instr_tbl[idx++], "STY",  &cpu6502::STY, 3, ZPG, BASE /* 0x84 */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 3, ZPG, BASE /* 0x85 */);
+    set_tbl_entry(instr_tbl[idx++], "STX",  &cpu6502::STX, 3, ZPG, BASE /* 0x86 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB0", &cpu6502::SMB, 5, ZPG, WRK  /* 0x87 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "DEY",  &cpu6502::DEY, 2, NON, BASE /* 0x88 */);
+    set_tbl_entry(instr_tbl[idx++], "BIT",  &cpu6502::BIT, 2, IMM, C02  /* 0x89 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "TXA",  &cpu6502::TXA, 2, NON, BASE /* 0x8A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x8B */);
+    set_tbl_entry(instr_tbl[idx++], "STY",  &cpu6502::STY, 4, ABS, BASE /* 0x8C */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 4, ABS, BASE /* 0x8D */);
+    set_tbl_entry(instr_tbl[idx++], "STX",  &cpu6502::STX, 4, ABS, BASE /* 0x8E */);
+    set_tbl_entry(instr_tbl[idx++], "BBS0", &cpu6502::BBS, 5, ZPR, WRK  /* 0x8F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BCC",  &cpu6502::BCC, 2, REL, BASE /* 0x90 */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 6, IDY, BASE /* 0x91 */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 5, IDZ, C02  /* 0x92 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x93 */);
+    set_tbl_entry(instr_tbl[idx++], "STY",  &cpu6502::STY, 4, ZPX, BASE /* 0x94 */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 4, ZPX, BASE /* 0x95 */);
+    set_tbl_entry(instr_tbl[idx++], "STX",  &cpu6502::STX, 4, ZPY, BASE /* 0x96 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB1", &cpu6502::SMB, 5, ZPG, WRK  /* 0x97 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "TYA",  &cpu6502::TYA, 2, NON, BASE /* 0x98 */);
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 5, ABY, BASE /* 0x99 */);
+    set_tbl_entry(instr_tbl[idx++], "TXS",  &cpu6502::TXS, 2, NON, BASE /* 0x9A */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x9B */);
+    set_tbl_entry(instr_tbl[idx++], "STZ",  &cpu6502::STZ, 4, ABS, C02  /* 0x9C */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "STA",  &cpu6502::STA, 5, ABX, BASE /* 0x9D */);
+    set_tbl_entry(instr_tbl[idx++], "STZ",  &cpu6502::STZ, 5, ABX, C02  /* 0x9E */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "BBS1", &cpu6502::BBS, 5, ZPR, WRK  /* 0x9F */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "LDY",  &cpu6502::LDY, 2, IMM, BASE /* 0xA0 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 6, IDX, BASE /* 0xA1 */);
+    set_tbl_entry(instr_tbl[idx++], "LDX",  &cpu6502::LDX, 2, IMM, BASE /* 0xA2 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xA3 */);
+    set_tbl_entry(instr_tbl[idx++], "LDY",  &cpu6502::LDY, 3, ZPG, BASE /* 0xA4 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 3, ZPG, BASE /* 0xA5 */);
+    set_tbl_entry(instr_tbl[idx++], "LDX",  &cpu6502::LDX, 3, ZPG, BASE /* 0xA6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB2", &cpu6502::SMB, 5, ZPG, WRK  /* 0xA7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "TAY",  &cpu6502::TAY, 2, NON, BASE /* 0xA8 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 2, IMM, BASE /* 0xA9 */);
+    set_tbl_entry(instr_tbl[idx++], "TAX",  &cpu6502::TAX, 2, NON, BASE /* 0xAA */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xAB */);
+    set_tbl_entry(instr_tbl[idx++], "LDY",  &cpu6502::LDY, 4, ABS, BASE /* 0xAC */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 4, ABS, BASE /* 0xAD */);
+    set_tbl_entry(instr_tbl[idx++], "LDX",  &cpu6502::LDX, 4, ABS, BASE /* 0xAE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS2", &cpu6502::BBS, 5, ZPR, WRK  /* 0xAF */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BCS",  &cpu6502::BCS, 2, REL, BASE /* 0xB0 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 5, IDY, BASE /* 0xB1 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 5, IDZ, C02  /* 0xB2 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xB3 */);
+    set_tbl_entry(instr_tbl[idx++], "LDY",  &cpu6502::LDY, 4, ZPX, BASE /* 0xB4 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 4, ZPX, BASE /* 0xB5 */);
+    set_tbl_entry(instr_tbl[idx++], "LDX",  &cpu6502::LDX, 4, ZPY, BASE /* 0xB6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB3", &cpu6502::SMB, 5, ZPG, WRK  /* 0xB7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CLV",  &cpu6502::CLV, 2, NON, BASE /* 0xB8 */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 4, ABY, BASE /* 0xB9 */);
+    set_tbl_entry(instr_tbl[idx++], "TSX",  &cpu6502::TSX, 2, NON, BASE /* 0xBA */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xBB */);
+    set_tbl_entry(instr_tbl[idx++], "LDY",  &cpu6502::LDY, 4, ABX, BASE /* 0xBC */);
+    set_tbl_entry(instr_tbl[idx++], "LDA",  &cpu6502::LDA, 4, ABX, BASE /* 0xBD */);
+    set_tbl_entry(instr_tbl[idx++], "LDX",  &cpu6502::LDX, 4, ABY, BASE /* 0xBE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS3", &cpu6502::BBS, 5, ZPR, WRK  /* 0xBF */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CPY",  &cpu6502::CPY, 2, IMM, BASE /* 0xC0 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 6, IDX, BASE /* 0xC1 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0xC2 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xC3 */);
+    set_tbl_entry(instr_tbl[idx++], "CPY",  &cpu6502::CPY, 3, ZPG, BASE /* 0xC4 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 3, ZPG, BASE /* 0xC5 */);
+    set_tbl_entry(instr_tbl[idx++], "DEC",  &cpu6502::DEC, 5, ZPG, BASE /* 0xC6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB4", &cpu6502::SMB, 5, ZPG, WRK  /* 0xC7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "INY",  &cpu6502::INY, 2, NON, BASE /* 0xC8 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 2, IMM, BASE /* 0xC9 */);
+    set_tbl_entry(instr_tbl[idx++], "DEX",  &cpu6502::DEX, 2, NON, BASE /* 0xCA */);
+    set_tbl_entry(instr_tbl[idx++], "WAI",  &cpu6502::WAI, 3, NON, WDC  /* 0xCB */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CPY",  &cpu6502::CPY, 4, ABS, BASE /* 0xCC */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 4, ABS, BASE /* 0xCD */);
+    set_tbl_entry(instr_tbl[idx++], "DEC",  &cpu6502::DEC, 6, ABS, BASE /* 0xCE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS4", &cpu6502::BBS, 5, ZPR, WRK  /* 0xCF */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BNE",  &cpu6502::BNE, 2, REL, BASE /* 0xD0 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 5, IDY, BASE /* 0xD1 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 5, IDZ, C02  /* 0xD2 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xD3 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 4, ZPX, C02  /* 0xD4 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 4, ZPX, BASE /* 0xD5 */);
+    set_tbl_entry(instr_tbl[idx++], "DEC",  &cpu6502::DEC, 6, ZPX, BASE /* 0xD6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB5", &cpu6502::SMB, 5, ZPG, WRK  /* 0xD7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CLD",  &cpu6502::CLD, 2, NON, BASE /* 0xD8 */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 4, ABY, BASE /* 0xD9 */);
+    set_tbl_entry(instr_tbl[idx++], "PHX",  &cpu6502::PHX, 3, NON, C02  /* 0xDA */);
+    set_tbl_entry(instr_tbl[idx++], "STP",  &cpu6502::STP, 3, NON, WDC  /* 0xDB */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 4, ABS, C02  /* 0xDC */);
+    set_tbl_entry(instr_tbl[idx++], "CMP",  &cpu6502::CMP, 4, ABX, BASE /* 0xDD */);
+    set_tbl_entry(instr_tbl[idx++], "DEC",  &cpu6502::DEC, 7, ABX, BASE /* 0xDE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS5", &cpu6502::BBS, 5, ZPR, WRK  /* 0xDF */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "CPX",  &cpu6502::CPX, 2, IMM, BASE /* 0xE0 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 6, IDX, BASE /* 0xE1 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, IMM, C02  /* 0xE2 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xE3 */);
+    set_tbl_entry(instr_tbl[idx++], "CPX",  &cpu6502::CPX, 3, ZPG, BASE /* 0xE4 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 3, ZPG, BASE /* 0xE5 */);
+    set_tbl_entry(instr_tbl[idx++], "INC",  &cpu6502::INC, 5, ZPG, BASE /* 0xE6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB6", &cpu6502::SMB, 5, ZPG, WRK  /* 0xE7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "INX",  &cpu6502::INX, 2, NON, BASE /* 0xE8 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 2, IMM, BASE /* 0xE9 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 2, NON, BASE /* 0xEA */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xEB */);
+    set_tbl_entry(instr_tbl[idx++], "CPX",  &cpu6502::CPX, 4, ABS, BASE /* 0xEC */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 4, ABS, BASE /* 0xED */);
+    set_tbl_entry(instr_tbl[idx++], "INC",  &cpu6502::INC, 6, ABS, BASE /* 0xEE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS6", &cpu6502::BBS, 5, ZPR, WRK  /* 0xEF */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "BEQ",  &cpu6502::BEQ, 2, REL, BASE /* 0xF0 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 5, IDY, BASE /* 0xF1 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 5, IDZ, C02  /* 0xF2 */); // 65C02
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xF3 */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 4, ZPX, C02  /* 0xF4 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 4, ZPX, BASE /* 0xF5 */);
+    set_tbl_entry(instr_tbl[idx++], "INC",  &cpu6502::INC, 6, ZPX, BASE /* 0xF6 */);
+    set_tbl_entry(instr_tbl[idx++], "SMB7", &cpu6502::SMB, 5, ZPG, WRK  /* 0xF7 */); // WDC65C02
+    set_tbl_entry(instr_tbl[idx++], "SED",  &cpu6502::SED, 2, NON, BASE /* 0xF8 */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 4, ABY, BASE /* 0xF9 */);
+    set_tbl_entry(instr_tbl[idx++], "PLX",  &cpu6502::PLX, 4, NON, C02  /* 0xFA */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0xFB */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 4, ABS, C02  /* 0xFC */);
+    set_tbl_entry(instr_tbl[idx++], "SBC",  &cpu6502::SBC, 4, ABX, BASE /* 0xFD */);
+    set_tbl_entry(instr_tbl[idx++], "INC",  &cpu6502::INC, 7, ABX, BASE /* 0xFE */);
+    set_tbl_entry(instr_tbl[idx++], "BBS7", &cpu6502::BBS, 5, ZPR, WRK  /* 0xFF */); // WDC65C02
 }
 
 // -------------------------------------------------------------------------
@@ -371,7 +374,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
     {
     case IND:
         tmp_addr      = rd_mem(p_regs->pc);
-#ifdef WY65_INDIRECT_FIX
+#if !defined(WY65_INDIRECT_FIX) && !defined(WY65_65C02)
         tmp_addr     |= rd_mem(((p_regs->pc+1) & MASK_8BIT) | (p_regs->pc & 0xff00)) << 8;
 #else
         tmp_addr     |= rd_mem(p_regs->pc+1) << 8;
@@ -443,6 +446,33 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
         p_regs->pc   += 1;
         break;
 
+    // 65C02 only
+    case IAX:
+        // Get 16 bit operand and add X 
+        tmp_addr      = rd_mem(p_regs->pc) | (rd_mem(p_regs->pc+1) << 8); 
+        tmp_addr      = (tmp_addr + p_regs->x) & MASK_16BIT;
+
+        // Address is value located at above address location
+        addr          = rd_mem(tmp_addr) | (rd_mem(tmp_addr+1) << 8);
+        p_regs->pc   += 2;
+        break;
+
+    // WDC 65C02 only. Unlike relative addressing PC remains pointing 
+    // at byte after opcode (for Zero page address), and BBS/BBR instructions
+    // must advance PC by 2 when branch not taken.
+    case ZPR:
+        tmp_addr      = p_regs->pc + 2;                             // Location of next instruction in cpu_memory
+
+        addr          = (tmp_addr + (int8_t)rd_mem(p_regs->pc+1)) & MASK_16BIT;
+        pg_crossed    = ((addr ^ tmp_addr) >> 8) ? true : false;
+        break;
+
+    case IDZ:
+        tmp_addr      = rd_mem(p_regs->pc);
+        addr          = rd_mem(tmp_addr) | (rd_mem(tmp_addr+1) << 8);
+        p_regs->pc   += 1;
+        break;
+
     // No address required
     case ACC:
     case NON:
@@ -490,7 +520,7 @@ int cpu6502::ADC (const op_t* p_op)
 
     // Set flags, based on extended result
     state.regs.flags |= (res_uns >= (bcd ? 100U : 0x100U))        ? CARRY_MASK : 0;
-    state.regs.flags |= ((result % (bcd ? 100 : 0x100)) == 0)     ? ZERO_MASK  : 0;
+    state.regs.flags |= ((result & MASK_8BIT) == 0)               ? ZERO_MASK  : 0;
     state.regs.flags |= (result < -128 || result > 127)           ? OVFLW_MASK : 0;
     state.regs.flags |= (result & 0x80)                           ? SIGN_MASK  : 0;
 
@@ -499,12 +529,17 @@ int cpu6502::ADC (const op_t* p_op)
 
     if (bcd)
     {
+        // Convert result back to BCD
         state.regs.a  = (state.regs.a % 10) + ((state.regs.a / 10) << 4);
+
+        // Re-evaluate N and Z flags after adjustment
+        state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
+        state.regs.flags |=  (state.regs.a & 0x80) ? SIGN_MASK : 0;
+        state.regs.flags |= !(state.regs.a & 0xff) ? ZERO_MASK : 0;
     }
 
     // Return number of cycles used
-    return p_op->exec_cycles + (page_crossed ? 1 : 0);
-
+    return p_op->exec_cycles + (page_crossed ? 1 : 0) + (bcd ? 1 : 0);
 }
 
 int cpu6502::AND (const op_t* p_op)
@@ -550,7 +585,8 @@ int cpu6502::ASL (const op_t* p_op)
         wr_mem(addr, result & MASK_8BIT);
     }
 
-    return p_op->exec_cycles;
+    // For 65C02 1 cycle quicker for ABX and no page crossing
+    return p_op->exec_cycles - ((!page_crossed && p_op->mode == ABX) ? 1 : 0);  
 }
 
 int cpu6502::BCC (const op_t* p_op)
@@ -621,11 +657,18 @@ int cpu6502::BIT (const op_t* p_op)
     bool is_zero      = (state.regs.a & mem_val) ? false : true;
 
     // Clear affected flags
-    state.regs.flags &= ~(ZERO_MASK | OVFLW_MASK | SIGN_MASK);
+    state.regs.flags &= ~ZERO_MASK;
 
-    state.regs.flags |= is_zero          ? ZERO_MASK  : 0;
-    state.regs.flags |= (mem_val & 0x40) ? OVFLW_MASK : 0;
-    state.regs.flags |= (mem_val & 0x80) ? SIGN_MASK  : 0;
+    state.regs.flags |= is_zero ? ZERO_MASK  : 0;
+
+    // O and N bits not altered for immediate mode
+    if (p_op->mode != IMM)
+    {
+      state.regs.flags &= ~(OVFLW_MASK | SIGN_MASK);
+
+      state.regs.flags |= (mem_val & 0x40) ? OVFLW_MASK : 0;
+      state.regs.flags |= (mem_val & 0x80) ? SIGN_MASK  : 0;
+    }
 
     return p_op->exec_cycles;
 }
@@ -703,7 +746,12 @@ int cpu6502::BRK (const op_t* p_op)
 
     state.regs.flags |= INT_MASK;
 
-    state.regs.pc     = (uint16_t)rd_mem(0xfffe) | ((uint16_t)rd_mem(0xffff) << 8);
+    if (state.mode_c > BASE)
+    {
+        state.regs.flags &= ~BCD_MASK;
+    }
+
+    state.regs.pc     = (uint16_t)rd_mem(IRQ_VEC_ADDR) | ((uint16_t)rd_mem(IRQ_VEC_ADDR+1) << 8);
 
     return p_op->exec_cycles;
 }
@@ -855,14 +903,21 @@ int cpu6502::DEC (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    int8_t result     = rd_mem(addr) - 1;
+    int8_t result     = ((p_op->mode == ACC) ? state.regs.a : rd_mem(addr)) - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
     state.regs.flags |= (result == 0)   ? ZERO_MASK  : 0;
     state.regs.flags |= (result & 0x80) ? SIGN_MASK  : 0;
 
-    wr_mem(addr, result);
+    if (p_op->mode == ACC)
+    {
+        state.regs.a  = result & MASK_8BIT;
+    }
+    else
+    {
+        wr_mem(addr, result & MASK_8BIT);
+    }
 
     return p_op->exec_cycles;
 }
@@ -930,14 +985,21 @@ int cpu6502::INC (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint8_t result    = rd_mem(addr) + 1;
+    uint8_t result    = ((p_op->mode == ACC) ? state.regs.a : rd_mem(addr)) + 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
     state.regs.flags |= (result == 0)   ? ZERO_MASK  : 0;
     state.regs.flags |= (result & 0x80) ? SIGN_MASK  : 0;
 
-    wr_mem(addr, result);
+    if (p_op->mode == ACC)
+    {
+        state.regs.a  = result & MASK_8BIT;
+    }
+    else
+    {
+        wr_mem(addr, result & MASK_8BIT);
+    }
 
     return p_op->exec_cycles;
 }
@@ -1266,14 +1328,20 @@ int cpu6502::SBC (const op_t* p_op)
 
     // Set flags, based on extended result
     state.regs.flags |= !(res_uns >= (bcd ? 100U : 0x100U))       ?  CARRY_MASK : 0;
-    state.regs.flags |= ((result % (bcd ? 100 : 0x100)) == 0)     ?  ZERO_MASK  : 0;
+    state.regs.flags |= ((result & MASK_8BIT) == 0)               ?  ZERO_MASK  : 0;
     state.regs.flags |= (((result>>1) ^ res_uns) & 0x80) && !bcd  ?  OVFLW_MASK : 0;
     state.regs.flags |= (result & 0x80)                           ?  SIGN_MASK  : 0;
 
     if (bcd)
     {
+        // Convert result back to BCD
         state.regs.a  = (((int32_t)result < 0) ? (result + 100) : result) % 100;
         state.regs.a  = (state.regs.a % 10) + ((state.regs.a / 10) << 4);
+
+        // Re-evaluate N and Z flags after adjustment
+        state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
+        state.regs.flags |=  (state.regs.a & SIGN_MASK) ? SIGN_MASK  : 0;
+        state.regs.flags |= !(state.regs.a & MASK_8BIT) ? ZERO_MASK  : 0;
     }
     else
     {
@@ -1282,7 +1350,7 @@ int cpu6502::SBC (const op_t* p_op)
     }
 
     // Return number of cycles used
-    return p_op->exec_cycles + (page_crossed ? 1 : 0);;
+    return p_op->exec_cycles + (page_crossed ? 1 : 0) + (bcd ? 1 : 0);
 }
 
 int cpu6502::SEC (const op_t* p_op)
@@ -1390,7 +1458,7 @@ int cpu6502::TAY (const op_t* p_op)
     state.regs.flags |= (state.regs.y == 0)   ?  ZERO_MASK  : 0;
     state.regs.flags |= (state.regs.y & 0x80) ?  SIGN_MASK  : 0;
 
-    return p_op->exec_cycles;;
+    return p_op->exec_cycles;
 }
 
 int cpu6502::TSX (const op_t* p_op)
@@ -1460,6 +1528,224 @@ int cpu6502::TYA (const op_t* p_op)
 }
 
 // -------------------------------------------------------------------------
+// Instruction for the 65C02/WDC 65C02
+
+int cpu6502::BBR (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of branch
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    
+    // Fetch byte at indicated zero page address (PC is pointing to it)
+    uint8_t zp_byte = rd_mem(rd_mem(state.regs.pc));
+    
+    if (!(zp_byte & (1 << ((p_op->opcode >> 4) & 0x7))))
+    {
+        state.regs.pc = addr;
+    
+        return p_op->exec_cycles + 1 + (page_crossed ? 1 : 0);
+    }
+    else
+    {
+        // Advance PC to next instruction
+        state.regs.pc += 2;
+        return p_op->exec_cycles;
+    }
+
+}
+
+int cpu6502::BBS (const op_t* p_op)
+{
+    bool page_crossed;
+  
+    // Fetch address of branch
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    
+    // Fetch byte at indicated zero page address (PC is pointing to it)
+    uint8_t zp_byte = rd_mem(rd_mem(state.regs.pc));
+    
+    if (zp_byte & (1 << ((p_op->opcode >> 4) & 0x7)))
+    {
+        state.regs.pc = addr;
+    
+        return p_op->exec_cycles + 1 + (page_crossed ? 1 : 0);
+    }
+    else
+    {
+        // Advance PC to next instruction
+        state.regs.pc += 2;
+        return p_op->exec_cycles;
+    }
+}
+
+int cpu6502::RMB (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of branch
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    
+    uint8_t zp_byte = rd_mem(addr) & ~(1 << ((p_op->opcode >> 4) & 0x7));
+    
+    wr_mem(addr, zp_byte);
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::SMB (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of branch
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    
+    uint8_t zp_byte = rd_mem(addr) | (1 << ((p_op->opcode >> 4) & 0x7));
+    
+    wr_mem(addr, zp_byte);
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::BRA (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of data (and update PC)
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    
+    state.regs.pc = addr;
+    
+    return p_op->exec_cycles + 1 + (page_crossed ? 1 : 0);
+}
+
+int cpu6502::TRB (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of data (and update PC)
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    uint8_t  mem_val  = rd_mem(addr);
+    
+    wr_mem(addr, mem_val & ~(state.regs.a));
+    
+    bool is_zero      = (state.regs.a & mem_val) ? false : true;
+    
+    // Clear affected flags
+    state.regs.flags &= ~(ZERO_MASK);
+    
+    state.regs.flags |= is_zero ? ZERO_MASK  : 0;
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::TSB (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of data (and update PC)
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+    uint8_t  mem_val  = rd_mem(addr);
+    
+    wr_mem(addr, mem_val | state.regs.a);
+    
+    bool is_zero      = (state.regs.a & mem_val) ? false : true;
+    
+    // Clear affected flags
+    state.regs.flags &= ~(ZERO_MASK);
+    
+    state.regs.flags |= is_zero ? ZERO_MASK  : 0;
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::STZ (const op_t* p_op)
+{
+    bool page_crossed;
+
+    // Fetch address of data (and update PC)
+    uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
+        
+    wr_mem(addr, 0x00);
+        
+    return p_op->exec_cycles;
+}
+
+int cpu6502::PHX (const op_t* p_op)
+{
+
+    wr_mem(state.regs.sp | 0x100, state.regs.x); state.regs.sp--;
+        
+    return p_op->exec_cycles;
+}
+
+int cpu6502::PHY (const op_t* p_op)
+{
+    wr_mem(state.regs.sp | 0x100, state.regs.y); state.regs.sp--;
+
+    return p_op->exec_cycles;
+}
+
+int cpu6502::PLX (const op_t* p_op)
+{
+    state.regs.sp++;
+    state.regs.x      = rd_mem(state.regs.sp | 0x100);
+    
+    // Clear affected flags
+    state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
+    
+    state.regs.flags |= (state.regs.x == 0)   ?  ZERO_MASK  : 0;
+    state.regs.flags |= (state.regs.x & 0x80) ?  SIGN_MASK  : 0;
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::PLY (const op_t* p_op)
+{
+    state.regs.sp++;
+    state.regs.y      = rd_mem(state.regs.sp | 0x100);
+    
+    // Clear affected flags
+    state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
+    
+    state.regs.flags |= (state.regs.y == 0)   ?  ZERO_MASK  : 0;
+    state.regs.flags |= (state.regs.y & 0x80) ?  SIGN_MASK  : 0;
+    
+    return p_op->exec_cycles;
+}
+
+int cpu6502::WAI (const op_t* p_op)
+{
+    // Cycles returned only on first execution of wait
+    uint32_t cycles = state.waiting ? 0 : p_op->exec_cycles;
+    
+    // If here, and an active interrupt, then I bit set, and we simply continue
+    if (state.nirq_line != NO_ACTIVE_IRQS)
+    {
+        state.waiting = false;
+    }
+    else
+    {
+        // If no interrupt, then go back to WAI address
+        state.regs.pc--;
+        state.waiting = true;
+    }
+    
+    return cycles;
+}
+
+int cpu6502::STP (const op_t* p_op)
+{
+    uint32_t cycles = state.stopped ? 0 : p_op->exec_cycles;
+
+    // When stopped, go back to STP instruction
+    state.regs.pc--;
+    state.stopped = true;
+
+    return cycles;
+}
+
+// -------------------------------------------------------------------------
 // disassemble()
 //
 // Disassemble an opcode to a named log file. The pc input must point to the 
@@ -1518,8 +1804,9 @@ void cpu6502::disassemble (const int      opcode,
         fprintf(fp, "            *\n");
     }
 
-
-    const char* str   = instr_tbl[opcode].op_str;
+    // The opcode string is forced to be "???" when the cpu type for the opcode
+    // is later than the current revision mode.
+    const char* str   = (instr_tbl[opcode].cpu_type <= state.mode_c) ? instr_tbl[opcode].op_str : "???";
 
 #ifdef WY65_EN_PRINT_CYCLES
     fprintf(fp, "%8d : %04x   ", cycles, pc);
@@ -1529,68 +1816,84 @@ void cpu6502::disassemble (const int      opcode,
 
     switch (instr_tbl[opcode].addr_mode)
     {
-    case NON: fprintf(fp, "%02X          %s          ", pc0, str);
+    case NON: fprintf(fp, "%02X          %s            ", pc0, str);
         nextPc        = pc + 1;
         break;
 
     case ACC: 
-        fprintf(fp, "%02X          %s   A      ", pc0, str); 
+        fprintf(fp, "%02X          %s   A        ", pc0, str); 
         nextPc        = pc + 1;
         break;
 
     case IMM: 
-        fprintf(fp, "%02X %02X       %s   #$%02X   ", pc0, pc1, str, pc1); 
+        fprintf(fp, "%02X %02X       %s   #$%02X     ", pc0, pc1, str, pc1); 
         nextPc        = pc + 2;
         break;
 
     case ABS: 
-        fprintf(fp, "%02X %02X %02X    %s   $%04X  ", pc0, pc1, pc2, str, pc1 | pc2 << 8);
+        fprintf(fp, "%02X %02X %02X    %s   $%04X    ", pc0, pc1, pc2, str, pc1 | pc2 << 8);
         nextPc        = pc + 3;
         break;
 
     case ZPG:
-        fprintf(fp, "%02X %02X       %s   $%02X    ", pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s%s  $%02X      ", pc0, pc1, str, ((opcode & 0xf) == 7) ? "" : " ", pc1);
         nextPc        = pc + 2;
         break;
 
     case REL: 
-        fprintf(fp, "%02X %02X       %s   $%02X    ", pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s   $%02X      ", pc0, pc1, str, pc1);
         nextPc        = pc + 2;
         break;
 
     case ABX: 
-        fprintf(fp, "%02X %02X %02X    %s   $%04X,X", pc0, pc1, pc2, str, pc1 | pc2 << 8);
+        fprintf(fp, "%02X %02X %02X    %s   $%04X,X  ", pc0, pc1, pc2, str, pc1 | pc2 << 8);
         nextPc        = pc + 3;
         break;
 
     case ABY: 
-        fprintf(fp, "%02X %02X %02X    %s   $%04X,Y", pc0, pc1, pc2, str, pc1 | pc2 << 8);
+        fprintf(fp, "%02X %02X %02X    %s   $%04X,Y  ", pc0, pc1, pc2, str, pc1 | pc2 << 8);
         nextPc        = pc + 3;
         break;
 
     case ZPX: 
-        fprintf(fp, "%02X %02X       %s   $%02X,X  ",   pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s   $%02X,X    ",   pc0, pc1, str, pc1);
         nextPc        = pc + 2;
         break;
 
     case ZPY: 
-        fprintf(fp, "%02X %02X       %s   $%02X,Y  ", pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s   $%02X,Y    ", pc0, pc1, str, pc1);
         nextPc        = pc + 2;
         break;
 
     case IDX: 
-        fprintf(fp, "%02X %02X       %s   ($%02X,X)", pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s   ($%02X,X)  ", pc0, pc1, str, pc1);
         nextPc        = pc + 2;
         break;
 
     case IDY: 
-        fprintf(fp, "%02X %02X       %s   ($%02X),Y", pc0, pc1, str, pc1);
+        fprintf(fp, "%02X %02X       %s   ($%02X),Y  ", pc0, pc1, str, pc1);
         nextPc        = pc + 2;
         break;
 
     case IND: 
         fprintf(fp, "%02X %02X %02X    %s   ($%04X)", pc0, pc1, pc2, str, pc1 | pc2 << 8);
         nextPc        = pc + 3;
+        break;
+
+    // WDC6502 addressing mode for BBRn/BBSn instructions
+    case ZPR:
+        fprintf(fp, "%02X %02X %02X    %s  $%02x,$%02X", pc0, pc1, pc2, str, pc1, pc2);
+        nextPc        = pc + 3;
+        break;
+
+    case IAX:
+        fprintf(fp, "%02X %02X %02X    %s   ($%04X,X)", pc0, pc1, pc2, str, pc1 | pc2 << 8);
+        nextPc        = pc + 3;
+        break;
+
+    case IDZ:
+        fprintf(fp, "%02X %02X       %s   ($%02X)    ", pc0, pc1, str, pc1);
+        nextPc        = pc + 2;
         break;
     }
 
@@ -1620,8 +1923,8 @@ void cpu6502::disassemble (const int      opcode,
 // -------------------------------------------------------------------------
 
 wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start_count, const uint32_t stop_count, const bool en_jmp_mrks)
-{
-    op_t          op;
+{   
+    op_t               op;
     wy65_exec_status_t rtn_val;
     int                num_cycles;
 
@@ -1629,7 +1932,15 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
     irq();
 
     op.opcode         = rd_mem(state.regs.pc++);
-    tbl_t* curr_instr = &instr_tbl[op.opcode];
+
+    tbl_t curr_instr  = instr_tbl[op.opcode];
+
+    // If the opcode points to an instruction that is greater than the selected 6502 type
+    // redirect pFunc to the NOP function.
+    if (curr_instr.cpu_type > state.mode_c)
+    {
+        curr_instr.pFunc = instr_tbl[NOP_OPCODE_BASE].pFunc; // LCOV_EXCL_LINE --- testing with all instructions enabled
+    }
 
     if (icount >= start_count && icount < stop_count)
     {
@@ -1646,11 +1957,11 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
                     state.regs.flags);
     }
 
-    op.mode           = curr_instr->addr_mode;
-    op.exec_cycles    = curr_instr->exec_cycles;
+    op.exec_cycles    = curr_instr.exec_cycles;
+    op.mode           = curr_instr.addr_mode; 
 
     // Execute instruction and get number of cycles (which may be more than op.exec_cycles; e.g. page crossing)
-    num_cycles        = (this->*(*curr_instr).pFunc)(&op);
+    num_cycles        = (this->*curr_instr.pFunc)(&op);
 
     state.cycles     += num_cycles;
 
@@ -1672,14 +1983,21 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
 // -------------------------------------------------------------------------
 
 void cpu6502::nmi_interrupt ()
-{   
+{
+    // If waiting, PC was not advanced past the WAI opcode, so do this before pushing PC
+    if (state.waiting)
+    {
+        state.regs.pc++;
+        state.waiting = false;
+    }
+
     wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & MASK_8BIT); state.regs.sp--;
     wr_mem(state.regs.sp | 0x100, state.regs.pc & MASK_8BIT);        state.regs.sp--;
     wr_mem(state.regs.sp | 0x100, state.regs.flags);                 state.regs.sp--;
 
     state.regs.flags |= INT_MASK;
 
-    state.regs.pc     = (uint16_t)rd_mem(0xfffa) | ((uint16_t)rd_mem(0xfffb) << 8);
+    state.regs.pc     = (uint16_t)rd_mem(NMI_VEC_ADDR) | ((uint16_t)rd_mem(NMI_VEC_ADDR+1) << 8);
 
     state.cycles     += NMI_CYCLES;
 }
@@ -1697,15 +2015,22 @@ void cpu6502::nmi_interrupt ()
 
 void cpu6502::irq ()
 {
-    if (state.nirq_line != NO_ACTIVE_IRQS && !(state.regs.flags & INT_MASK))
+    if (state.nirq_line != NO_ACTIVE_IRQS && !(state.regs.flags & INT_MASK) && !state.stopped)
     {
+        // If waiting, PC was not advanced past the WAI opcode, so do this before pushing PC
+        if (state.waiting)
+        {
+            state.regs.pc++;
+            state.waiting = false;
+        }
+
         wr_mem(state.regs.sp | 0x100, (state.regs.pc >> 8) & MASK_8BIT);  state.regs.sp--;
         wr_mem(state.regs.sp | 0x100, state.regs.pc & MASK_8BIT);         state.regs.sp--;
         wr_mem(state.regs.sp | 0x100, state.regs.flags & ~BRK_MASK);      state.regs.sp--;
         
         state.regs.flags |= INT_MASK;
         
-        state.regs.pc     = (uint16_t)rd_mem(0xfffe) | ((uint16_t)rd_mem(0xffff) << 8);
+        state.regs.pc     = (uint16_t)rd_mem(IRQ_VEC_ADDR) | ((uint16_t)rd_mem(IRQ_VEC_ADDR+1) << 8);
 
         state.cycles      += IRQ_CYCLES;
     }
@@ -1754,11 +2079,11 @@ void cpu6502::deactivate_irq (const uint16_t id)
 // 
 // -------------------------------------------------------------------------
 
-void cpu6502::reset ()
+void cpu6502::reset (cpu_type_e mode)
 {
     // Reset the CPU state.
     state.regs.flags  = INT_MASK;
-    state.regs.pc     = (uint16_t)rd_mem(0xfffc) | ((uint16_t)rd_mem(0xfffd) << 8);
+    state.regs.pc     = (uint16_t)rd_mem(RESET_VEC_ADDR) | ((uint16_t)rd_mem(RESET_VEC_ADDR+1) << 8);
     state.regs.a      = 0;
     state.regs.x      = 0;
     state.regs.y      = 0;
@@ -1766,6 +2091,13 @@ void cpu6502::reset ()
 
     state.cycles      = RST_CYCLES;
     state.nirq_line   = NO_ACTIVE_IRQS;
+    state.waiting     = false;
+    state.stopped     = false;
+
+    if (mode != DEFAULT)
+    {
+        state.mode_c      = mode; // Set which CPU variant mode we're in from argument (default BASE)
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -1808,6 +2140,361 @@ void cpu6502::register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t p_
 static cpu6502  cpu;
 
 // -------------------------------------------------------------------------
+// interrupt_test()
+//
+// Performs testing of IRQ and NMI interrupts
+//
+// -------------------------------------------------------------------------
+
+bool interrupt_test(cpu_type_e mode_c, uint16_t start_addr)
+{
+    bool     error        = false;
+    uint16_t old_irq_vec;
+
+    // ------------------------------------
+    // NMI Interrupt test
+    // ------------------------------------
+
+    // Reset
+    cpu.reset(mode_c);
+
+    // Execute an instruction
+    wy65_exec_status_t status = cpu.execute();
+
+    // Check returned PC is within three of the reset vector
+    if (status.pc < start_addr || status.pc >= (start_addr+3))
+    {
+        error = true; // LCOV_EXCL_LINE
+    }
+    // Make sure that the flags have the interrupt bit set
+    else if (!(status.flags & INT_MASK))
+    {
+        error = true; // LCOV_EXCL_LINE
+    }
+
+    if (!error)
+    {
+        uint16_t nmi_addr = TEST_ADDR1;
+
+        // Remember the IRQ vector already programmed in memory
+        old_irq_vec  = cpu.rd_mem(IRQ_VEC_ADDR);
+        old_irq_vec |= cpu.rd_mem(IRQ_VEC_ADDR+1) << 8;
+
+        // Load the NMI vector with the user start location, if specified
+        cpu.wr_mem(NMI_VEC_ADDR,    nmi_addr       & MASK_8BIT);
+        cpu.wr_mem(NMI_VEC_ADDR+1, (nmi_addr >> 8) & MASK_8BIT);
+
+        // Load NMI address with a NOP
+        cpu.wr_mem(nmi_addr,    NOP_OPCODE_BASE); // Load a NOP opcode
+        cpu.wr_mem(nmi_addr+1,  CLI_OPCODE);      // Load a CLI opcode
+
+        // Raise an interrupt
+        cpu.nmi_interrupt();
+
+        // Execute an instruction
+        status = cpu.execute();
+
+        // Check returned PC is address after nmi_addr
+        if (status.pc != (nmi_addr+1))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+        // Check that the flags has the interrupt bit set, but not the break flag
+        else if (((status.flags & INT_MASK) == 0) || (status.flags & BRK_MASK))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+        else
+        {
+            // Execute next instruction (CLI)
+            status = cpu.execute();
+
+            // Check interrupt flag clear, ready for IRQ testing
+            if (status.flags & INT_MASK)
+            {
+                error = true; // LCOV_EXCL_LINE
+            }
+        }
+    }
+
+    // ------------------------------------
+    // IRQ Interrupt test
+    // ------------------------------------
+
+    if (!error)
+    {
+        uint16_t irq_addr = TEST_ADDR2;
+
+        // Load the IRQ vector with the user start location, if specified
+        cpu.wr_mem(IRQ_VEC_ADDR,    irq_addr       & MASK_8BIT);
+        cpu.wr_mem(IRQ_VEC_ADDR+1, (irq_addr >> 8) & MASK_8BIT);
+
+        // Load IRQ address with a NOP
+        cpu.wr_mem(irq_addr,    NOP_OPCODE_BASE);
+
+        // Activate an IRQ
+        cpu.activate_irq();
+
+        // Execute an instruction
+        status = cpu.execute();
+
+        // Remove active IRQ
+        cpu.deactivate_irq();
+
+        // Check PC is irq_addr + 1
+        if (status.pc != (irq_addr+1))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+        // Check interrupt flag set
+        else if (!(status.flags & INT_MASK))
+        {
+            error = true; // LCOV_EXCL_LINE
+        }
+
+        // Restore IRQ vector (for BRK instruction testing in main test)
+        cpu.wr_mem(IRQ_VEC_ADDR,    old_irq_vec       & MASK_8BIT);
+        cpu.wr_mem(IRQ_VEC_ADDR+1, (old_irq_vec >> 8) & MASK_8BIT);
+    }
+
+    return error;
+}
+
+// -------------------------------------------------------------------------
+// wait_stop_tests()
+//
+// Performs testing of WAI and STP instructions
+//
+// -------------------------------------------------------------------------
+
+bool wait_stop_tests(uint16_t start_addr)
+{
+
+    wy65_exec_status_t status;
+    uint16_t           irq_vec;
+    uint16_t           nmi_vec;
+    bool               error        = false;
+
+    // ------------------------------------
+    // WAI test 
+    // ------------------------------------
+
+    // Get the IRQ vector already programmed in memory
+    irq_vec  = cpu.rd_mem(IRQ_VEC_ADDR);
+    irq_vec |= cpu.rd_mem(IRQ_VEC_ADDR+1) << 8;
+
+	// Update reset vector
+    uint16_t rst_addr = TEST_ADDR1;
+    cpu.wr_mem(RESET_VEC_ADDR,    rst_addr       & MASK_8BIT);
+    cpu.wr_mem(RESET_VEC_ADDR+1, (rst_addr >> 8) & MASK_8BIT);
+
+    // Program at rst_addr: WAI CLI WAI NOP
+    cpu.wr_mem(rst_addr,    WAI_OPCODE);
+    cpu.wr_mem(rst_addr+1,  CLI_OPCODE);
+    cpu.wr_mem(rst_addr+2,  WAI_OPCODE);
+    cpu.wr_mem(rst_addr+3,  NOP_OPCODE_BASE);
+
+    cpu.reset();
+
+	// Execute WAI (I is set)
+    status = cpu.execute();
+
+	// Check pc = rst_addr, and cycles != 0 --- i.e. now waiting (for the first time)
+	if (status.pc != rst_addr || status.cycles == 0)
+	{
+        error = true; // LCOV_EXCL_LINE
+	}
+	else
+	{
+	    // Execute WAI (I is set)
+        status = cpu.execute();
+    
+	    // Check pc = rst_addr, and cycles == 0 --- i.e. still waiting (not for the first time)
+	    if (status.pc != rst_addr || status.cycles != 0)
+	    {
+            error = true; // LCOV_EXCL_LINE
+	    }
+	}
+
+    // Test IRQ when waiting with I bit set
+    if (!error)
+    {
+        // Activate an interrupt (but I still set)
+        cpu.activate_irq();
+
+        // Execute WAI for a third time
+        status = cpu.execute();
+
+        // Deactivate IRQ
+        cpu.deactivate_irq();
+
+        // Check pc = rst_addr+1, and cycles != 0
+	    if (status.pc != rst_addr+1 || status.cycles != 0)
+	    {
+            error = true; // LCOV_EXCL_LINE
+	    }
+    }
+    
+    // Clear I flag and get to next WAI instruction, which then waits
+    if (!error)
+    {
+        // Execute CLI instruction
+        status = cpu.execute();
+
+        // Execute second WAI
+        status = cpu.execute();
+
+        // Check pc = rst_addr+2, count != 0
+        if (status.pc != rst_addr+2 || status.cycles == 0)
+        {
+            error = true;  // LCOV_EXCL_LINE
+        }
+        else
+        {
+            // Execute WAI again
+            status = cpu.execute();
+            // Check pc = rst_addr+2, count != 0
+            if (status.pc != rst_addr+2 || status.cycles != 0)
+            {
+                error = true;  // LCOV_EXCL_LINE
+            }
+        }
+    }
+
+    // Test IRQ when waiting with I bit clear
+    if (!error)
+    {
+        // Activate an interrupt (but I now clear)
+        cpu.activate_irq();
+
+        // Execute
+        status = cpu.execute();
+
+        // Check pc = irq_vec+1, count != 0
+        if (status.pc != irq_vec+1 || status.cycles == 0)
+        {
+            error = true;  // LCOV_EXCL_LINE
+        }
+    }
+
+    // Test NMI when waiting
+
+    nmi_vec  = TEST_ADDR3;
+
+    // Load the NMI vector
+    cpu.wr_mem(NMI_VEC_ADDR,    nmi_vec       & MASK_8BIT);
+    cpu.wr_mem(NMI_VEC_ADDR+1, (nmi_vec >> 8) & MASK_8BIT);
+
+    if (!error)
+    {
+        // Reset one more
+        cpu.reset();
+
+        // Execute WAI 
+        status = cpu.execute();
+
+        // Check pc = rst_addr, count != 0
+        if (status.pc != rst_addr || status.cycles == 0)
+        {
+            error = true;  // LCOV_EXCL_LINE
+        }
+        else
+        {
+            // Execute WAI again
+            status = cpu.execute();
+
+            // Check pc = rst_addr, count == 0
+            if (status.pc != rst_addr || status.cycles != 0)
+            {
+                error = true;  // LCOV_EXCL_LINE
+            }
+        }
+
+        if (!error)
+        {
+            // Activate an NMI
+            cpu.nmi_interrupt();
+            
+            // Execute
+            status = cpu.execute();
+            
+            // Check pc = nmi_vec+1, count != 0
+            if (status.pc != nmi_vec+1 || status.cycles == 0)
+            {
+                error = true;  // LCOV_EXCL_LINE
+            }
+        }
+    }
+
+    // ------------------------------------
+    // STP test
+    // ------------------------------------
+
+    if (!error)
+    {
+        // Update reset vector
+        uint16_t rst_addr = TEST_ADDR1;
+        cpu.wr_mem(RESET_VEC_ADDR,    rst_addr       & MASK_8BIT);
+        cpu.wr_mem(RESET_VEC_ADDR+1, (rst_addr >> 8) & MASK_8BIT);
+
+        // Program at rst_addr: CLI STP NOP
+        cpu.wr_mem(rst_addr,    CLI_OPCODE);
+        cpu.wr_mem(rst_addr+1,  STP_OPCODE);
+        cpu.wr_mem(rst_addr+2,  NOP_OPCODE_BASE);
+
+        cpu.reset();
+
+        // Execute CLI
+        status = cpu.execute();
+
+        // Execute STP
+        status = cpu.execute();
+
+        // Check pc = rst_addr+1, and cycles != 0
+	    if (status.pc != rst_addr+1 || status.cycles == 0)
+	    {
+            error = true; // LCOV_EXCL_LINE
+	    }
+        else
+        {
+            // Execute again
+            status = cpu.execute();
+
+            // Check pc = rst_addr+1, and cycles == 0
+	        if (status.pc != rst_addr+1 || status.cycles != 0)
+	        {
+                error = true; // LCOV_EXCL_LINE
+	        }
+        }
+
+        // Chekc IRQs ignored when stopped, even when I bit clear
+        if (!error)
+        {
+            // Raise interrupt (I is clear)
+            cpu.activate_irq();
+
+            // Execute again
+            status = cpu.execute();
+
+            // Deactivate IRQ
+            cpu.deactivate_irq();
+
+            // Check pc = rst_addr+1, and cycles == 0 -- i.e. Still stopped
+	        if (status.pc != rst_addr+1 || status.cycles != 0)
+	        {
+                error = true; // LCOV_EXCL_LINE
+	        }
+        }
+
+        // Restore reset vector
+        cpu.wr_mem(RESET_VEC_ADDR,    start_addr       & MASK_8BIT);
+        cpu.wr_mem(RESET_VEC_ADDR+1, (start_addr >> 8) & MASK_8BIT);
+    }
+
+    return error;
+}
+
+// -------------------------------------------------------------------------
 // main()
 //
 // Top level function with command line interface for loading programs,
@@ -1825,25 +2512,25 @@ static cpu6502  cpu;
 int main (int argc, char** argv)
 {
 
-    bool     read_bin         = true;
-    bool     read_srecord     = false;
-    uint16_t load_addr        = DEFAULT_LOAD_ADDR;
-    uint16_t start_addr       = DEFAULT_START_ADDR;
-    uint16_t debug_start_addr = DEFAULT_DEBUG_ADDR;
-    uint32_t icount_brk       = DEFAULT_DEBUG_ICOUNT;
-    uint32_t start_dis_count  = DEFAULT_START_DIS_CNT;
-    uint32_t stop_dis_count   = DEFAULT_STOP_DIS_CNT;
-    uint32_t instr_count      = 0;
+    bool               read_bin         = true;
+    bool               read_srecord     = false;
+    cpu_type_e         mode_c           = BASE;
+    uint16_t           load_addr        = DEFAULT_LOAD_ADDR;
+    uint16_t           start_addr       = DEFAULT_START_ADDR;
+    uint16_t           debug_start_addr = DEFAULT_DEBUG_ADDR;
+    uint32_t           icount_brk       = DEFAULT_DEBUG_ICOUNT;
+    uint32_t           start_dis_count  = DEFAULT_START_DIS_CNT;
+    uint32_t           stop_dis_count   = DEFAULT_STOP_DIS_CNT;
+    uint32_t           instr_count      = 0;
 
-    bool     error            = false;
-
-    char*    fname            = DEFAULT_PROG_FILE_NAME;
-
-    FILE*    prog_fp          = NULL;
-    int      option;
+    wy65_exec_status_t status;
+    bool               error            = false;
+    char*              fname            = DEFAULT_PROG_FILE_NAME;
+    FILE*              prog_fp          = NULL;
+    int                option;
 
     // Process command line options
-    while ((option = getopt(argc, argv, "f:I:M:l:s:d:i:S:E:h")) != EOF)
+    while ((option = getopt(argc, argv, "f:I:M:l:s:d:i:S:E:ch")) != EOF)
     {
         switch(option)
         {
@@ -1880,6 +2567,9 @@ int main (int argc, char** argv)
         case 'E':
             stop_dis_count    = strtol(optarg, NULL, 0);
             break;
+        case 'c':
+            mode_c = WDC; // Turn on all opcodes
+            break;
         //LCOV_EXCL_START
         case 'h':
         case 'q':
@@ -1894,6 +2584,7 @@ int main (int argc, char** argv)
                 "    -i Debug instruction count             (default 0x%04x)\n"
                 "    -S Disassemble start instruction count (default 0x%08x)\n"
                 "    -E Disassemble end instruction count   (default 0x%08x)\n"
+                "    -c Enable 65C02 features               (default off)\n"
                 "\n"
                           , argv[0]
                           , DEFAULT_PROG_FILE_NAME
@@ -1933,114 +2624,25 @@ int main (int argc, char** argv)
     }
 
     // Load the reset vector with the user start location, if specified
-    cpu.wr_mem(0xfffc,  start_addr       & MASK_8BIT);
-    cpu.wr_mem(0xfffd, (start_addr >> 8) & MASK_8BIT);
+    cpu.wr_mem(RESET_VEC_ADDR,    start_addr       & MASK_8BIT);
+    cpu.wr_mem(RESET_VEC_ADDR+1, (start_addr >> 8) & MASK_8BIT);
 
     // ------------------------------------
-    // NMI Interrupt test
-    // ------------------------------------
-
-    // Reset
-    cpu.reset();
-
-    // Execute an instruction
-    wy65_exec_status_t status = cpu.execute();
-
-    // Check returned PC is within three of the reset vector
-    if (status.pc < start_addr || status.pc >= (start_addr+3))
-    {
-        error = true; // LCOV_EXCL_LINE
-    }
-    // Make sure that the flags have the interrupt bit set
-    else if (!(status.flags & INT_MASK))
-    {
-        error = true; // LCOV_EXCL_LINE
-    }
-
-    if (!error)
-    {
-        uint16_t nmi_addr = 0xfff0;
-
-        // Load the NMI vector with the user start location, if specified
-        cpu.wr_mem(0xfffa,  nmi_addr       & MASK_8BIT);
-        cpu.wr_mem(0xfffb, (nmi_addr >> 8) & MASK_8BIT);
-
-        // Load NMI address with a NOP
-        cpu.wr_mem(nmi_addr,    0xEA); // Load a NOP opcode
-        cpu.wr_mem(nmi_addr+1,  0x58); // Load a CLI opcode
-
-        // Raise an interrupt
-        cpu.nmi_interrupt();
-
-        // Execute an instruction
-        status = cpu.execute();
-
-        // Check returned PC is address after nmi_addr
-        if (status.pc != (nmi_addr+1))
-        {
-            error = true; // LCOV_EXCL_LINE
-        }
-        // Check that the flags has the interrupt bit set, but not the break flag
-        else if (((status.flags & INT_MASK) == 0) || (status.flags & BRK_MASK))
-        {
-            error = true; // LCOV_EXCL_LINE
-        }
-        else
-        {
-            // Execute next instruction (CLI)
-            status = cpu.execute();
-
-            // Check interrupt flag clear, ready for IRQ testing
-            if (status.flags & INT_MASK)
-            {
-                error = true; // LCOV_EXCL_LINE
-            }
-        }
-    }
-
-    // ------------------------------------
-    // IRQ Interrupt test
+    // Interrupt tests
     // ------------------------------------
 
     if (!error)
     {
-        uint16_t old_irq_vec;
-        uint16_t irq_addr = 0xfff2;
+        error = interrupt_test(mode_c, start_addr);
+    }
 
-        // Remember the vector already programmed in memory
-        old_irq_vec = cpu.rd_mem(0xfffe);
-        old_irq_vec |= cpu.rd_mem(0xffff) << 8;
+    // ------------------------------------
+    // WAI and STP tests
+    // ------------------------------------
 
-        // Load the IRQ vector with the user start location, if specified
-        cpu.wr_mem(0xfffe,  irq_addr       & MASK_8BIT);
-        cpu.wr_mem(0xffff, (irq_addr >> 8) & MASK_8BIT);
-
-        // Load IRQ address with a NOP
-        cpu.wr_mem(irq_addr,    0xEA); // Load a NOP opcode
-
-        // Activate an IRQ
-        cpu.activate_irq();
-
-        // Execute an instruction
-        status = cpu.execute();
-
-        // Remove active IRQ
-        cpu.deactivate_irq();
-
-        // Check PC is irq_addr + 1
-        if (status.pc != (irq_addr+1))
-        {
-            error = true; // LCOV_EXCL_LINE
-        }
-        // Check interrupt flag set
-        else if (!(status.flags & INT_MASK))
-        {
-            error = true; // LCOV_EXCL_LINE
-        }
-
-        // Restore IRQ vector (for BRK instruction testing in main test)
-        cpu.wr_mem(0xfffe,  old_irq_vec       & MASK_8BIT);
-        cpu.wr_mem(0xffff, (old_irq_vec >> 8) & MASK_8BIT);
+    if (!error && mode_c >= WDC)
+    {
+        error = wait_stop_tests(start_addr);
     }
 
     // ------------------------------------
@@ -2050,46 +2652,37 @@ int main (int argc, char** argv)
     if (!error)
     {
         // Load failure status to nominated location
-        cpu.wr_mem(0xfff8,  BAD_TEST_STATUS       & MASK_8BIT);
-        cpu.wr_mem(0xfff9, (BAD_TEST_STATUS >> 8) & MASK_8BIT);
+        cpu.wr_mem(TEST_STATUS_ADDR,    BAD_TEST_STATUS       & MASK_8BIT);
+        cpu.wr_mem(TEST_STATUS_ADDR+1, (BAD_TEST_STATUS >> 8) & MASK_8BIT);
 
         // Assert a reset
         cpu.reset();
 
-        wy65_exec_status_t status;
         bool     terminate        = false;
         uint16_t prev_pc          = 0;
 
         fprintf(stdout, "Executing %s from address 0x%04x ...\n\n", fname, start_addr); 
 
+        status.pc = 0xffff;
+
         // Start the clock
-        pre_run_setup();
+        pre_run_setup();  
 
         // Start executing instructions
         do 
         {
-            // This is here purely to serve as debug breakpoint for 
-            // a given address after a certain number of executed instructions.
-            if (prev_pc == debug_start_addr && instr_count > icount_brk)
-            {
-                prev_pc           = prev_pc; // Does nothing (LCOV_EXCL_LINE)
-            }
+            prev_pc = status.pc;
 
             status = cpu.execute(instr_count++, start_dis_count, stop_dis_count, true);
-
-            // Terminate if looping back to same instruction (i.e. deliberately hung)
-            terminate = (status.pc == prev_pc);
-
-            prev_pc               = status.pc;
-
         }
-        while (!terminate);
+        // Terminate if looping back to same instruction (i.e. deliberately hung)
+        while (prev_pc != status.pc);
 
         // Stop the clock
         post_run_setup();
 
         // Get test status values from memory
-        uint16_t test_status = (cpu.rd_mem(0xfff9) << 8) | cpu.rd_mem(0xfff8);
+        uint16_t test_status = (cpu.rd_mem(TEST_STATUS_ADDR+1) << 8) | cpu.rd_mem(TEST_STATUS_ADDR);
 
         error = test_status != GOOD_TEST_STATUS;
     }

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.h,v 1.2 2017/01/24 18:04:57 simon Exp $
+// $Id: cpu6502.h,v 1.5 2017/01/30 14:56:07 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.h,v $
 //
 //=============================================================
@@ -90,5 +90,19 @@ extern int optind;
 #define MASK_8BIT                0xff
 #define MASK_16BIT               0xffff
 #define MASK_32BIT               0xffffffff
+
+#define NOP_OPCODE_BASE          0xea
+#define CLI_OPCODE               0x58
+#define WAI_OPCODE               0xcb
+#define STP_OPCODE               0xdb
+
+#define NMI_VEC_ADDR             0xfffa
+#define RESET_VEC_ADDR           0xfffc
+#define IRQ_VEC_ADDR             0xfffe
+
+#define TEST_ADDR1               0xfff0
+#define TEST_ADDR2               0xfff2
+#define TEST_STATUS_ADDR         0xfff8
+#define TEST_ADDR3               0x0400
 
 #endif

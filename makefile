@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with cpu6502. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.3 2017/01/18 12:23:29 simon Exp $
+# $Id: makefile,v 1.5 2017/01/30 15:23:00 simon Exp $
 # $Source: /home/simon/CVS/src/cpu/cpu6502/makefile,v $
 # 
 ##########################################################
@@ -32,6 +32,7 @@
 
 TARGET=cpu6502
 TESTTGT=test.hex
+TESTTGT2=test_65c02.hex
 
 SRCDIR=./src
 TESTDIR=./test
@@ -39,6 +40,7 @@ OBJDIR=./obj
 
 SRCFILES=cpu6502.cpp read_ihx.cpp
 TESTSRC=test.a65
+TESTSRC2=test_65c02.a65
 
 COMMINCL=read_ihx.h cpu6502.h cpu6502_api.h
 TGTINCL=cpu6502.h
@@ -105,8 +107,12 @@ ifndef DOCOV
 ${TESTDIR}/${TESTTGT} : ${TESTDIR}/${TESTSRC}
 	@cd ${TESTDIR} && ${ASM} -q -s2 ${TESTSRC}
 
-test: ${TARGET} ${TESTDIR}/${TESTTGT}
-	@${TARGET} -I ${TESTDIR}/${TESTTGT} -s ${TSTADDR}
+${TESTDIR}/${TESTTGT2} : ${TESTDIR}/${TESTSRC2}
+	@cd ${TESTDIR} && ${ASM} -q -s2 -x ${TESTSRC2}
+
+test: ${TARGET} ${TESTDIR}/${TESTTGT} ${TESTDIR}/${TESTTGT2}
+	@./${TARGET} -I ${TESTDIR}/${TESTTGT}  -s ${TSTADDR}
+	@./${TARGET} -I ${TESTDIR}/${TESTTGT2} -s ${TSTADDR} -c
 
 else
 
@@ -115,10 +121,16 @@ else
 ${TESTDIR}/${TESTTGT} : ${TESTDIR}/${TESTSRC}
 	@cd ${TESTDIR} && ${ASM} -q ${TESTSRC} && ${ASM} -q -s ${TESTSRC} && ${ASM} -q -s2 ${TESTSRC}
 
-test: ${TARGET} ${TESTDIR}/${TESTTGT}
-	@${TARGET} ${TESTCOVOPTS} -I ${TESTDIR}/${TESTTGT}             -s ${TSTADDR}
-	@${TARGET} ${TESTCOVOPTS} -M ${TESTDIR}/${TESTTGT:%.hex=%.s19} -s ${TSTADDR}
-	@${TARGET} ${TESTCOVOPTS} -f ${TESTDIR}/${TESTTGT:%.hex=%.bin} -s ${TSTADDR}
+${TESTDIR}/${TESTTGT2} : ${TESTDIR}/${TESTSRC2}
+	@cd ${TESTDIR} && ${ASM} -qx ${TESTSRC2} && ${ASM} -qx -s ${TESTSRC2} && ${ASM} -qx -s2 ${TESTSRC2}
+
+test: ${TARGET} ${TESTDIR}/${TESTTGT} ${TESTDIR}/${TESTTGT2}
+	@./${TARGET} ${TESTCOVOPTS} -I ${TESTDIR}/${TESTTGT}              -s ${TSTADDR}
+	@./${TARGET} ${TESTCOVOPTS} -M ${TESTDIR}/${TESTTGT:%.hex=%.s19}  -s ${TSTADDR}
+	@./${TARGET} ${TESTCOVOPTS} -f ${TESTDIR}/${TESTTGT:%.hex=%.bin}  -s ${TSTADDR}
+	@./${TARGET} ${TESTCOVOPTS} -I ${TESTDIR}/${TESTTGT2}             -s ${TSTADDR} -c
+	@./${TARGET} ${TESTCOVOPTS} -M ${TESTDIR}/${TESTTGT2:%.hex=%.s19} -s ${TSTADDR} -c
+	@./${TARGET} ${TESTCOVOPTS} -f ${TESTDIR}/${TESTTGT2:%.hex=%.bin} -s ${TSTADDR} -c
 endif
 
 ##########################################################
@@ -146,7 +158,10 @@ endif
 ##########################################################
 
 clean:
-	@rm -rf ${TARGET} ${TESTDIR}/${TESTTGT} ${TESTDIR}/${TESTTGT:%.hex=%.bin} \
-	                  ${TESTDIR}/${TESTTGT:%.hex=%.s19} ${TESTDIR}/${TESTTGT:%.hex=%.lst} \
-	                  ${OBJDIR} ${COVDIR} ${LCOVINFO} ${COVLOGFILE} *.gc* ${TARGET}.log
+	@rm -rf ${TARGET} \
+	        ${TESTDIR}/${TESTTGT} ${TESTDIR}/${TESTTGT:%.hex=%.bin} \
+	        ${TESTDIR}/${TESTTGT:%.hex=%.s19} ${TESTDIR}/${TESTTGT:%.hex=%.lst} \
+	        ${TESTDIR}/${TESTTGT2} ${TESTDIR}/${TESTTGT2:%.hex=%.bin} \
+	        ${TESTDIR}/${TESTTGT2:%.hex=%.s19} ${TESTDIR}/${TESTTGT2:%.hex=%.lst} \
+	         ${OBJDIR} ${COVDIR} ${LCOVINFO} ${COVLOGFILE} *.gc* ${TARGET}.log
 
