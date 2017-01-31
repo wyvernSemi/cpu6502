@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.11 2017/01/30 14:56:47 simon Exp $
+// $Id: cpu6502.cpp,v 1.12 2017/01/31 14:30:22 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -2514,11 +2514,10 @@ int main (int argc, char** argv)
 
     bool               read_bin         = true;
     bool               read_srecord     = false;
+    bool               disable_testing  = false;
     cpu_type_e         mode_c           = BASE;
     uint16_t           load_addr        = DEFAULT_LOAD_ADDR;
     uint16_t           start_addr       = DEFAULT_START_ADDR;
-    uint16_t           debug_start_addr = DEFAULT_DEBUG_ADDR;
-    uint32_t           icount_brk       = DEFAULT_DEBUG_ICOUNT;
     uint32_t           start_dis_count  = DEFAULT_START_DIS_CNT;
     uint32_t           stop_dis_count   = DEFAULT_STOP_DIS_CNT;
     uint32_t           instr_count      = 0;
@@ -2530,7 +2529,7 @@ int main (int argc, char** argv)
     int                option;
 
     // Process command line options
-    while ((option = getopt(argc, argv, "f:I:M:l:s:d:i:S:E:ch")) != EOF)
+    while ((option = getopt(argc, argv, "f:I:M:l:s:S:E:cDh")) != EOF)
     {
         switch(option)
         {
@@ -2555,12 +2554,6 @@ int main (int argc, char** argv)
         case 's':
             start_addr        = (uint16_t)strtol(optarg, NULL, 0);
             break;
-        case 'd':
-            debug_start_addr  = (uint16_t)strtol(optarg, NULL, 0);
-            break;
-        case 'i':
-            icount_brk        = strtol(optarg, NULL, 0);
-            break;
         case 'S':
             start_dis_count   = strtol(optarg, NULL, 0);
             break;
@@ -2570,28 +2563,28 @@ int main (int argc, char** argv)
         case 'c':
             mode_c = WDC; // Turn on all opcodes
             break;
+        case 'D':
+            disable_testing = true;
+            break;
         //LCOV_EXCL_START
         case 'h':
         case 'q':
             fprintf(stderr, "Usage: %s [[-f | -I | -M] <filename>][-l <addr>>][-s <addr>]\n"
-                "        [-d <addr>][-i <count>][-S <count>][-E <count>]\n\n"
+                "        [-S <count>][-E <count>][-c][-D]\n\n"
                 "    -f Binary program file name            (default %s)\n"
                 "    -I Intel Hex program file name\n"
                 "    -M Motorola S-Record program file name\n"
                 "    -l Load start address of binary image  (default 0x%04x)\n"
                 "    -s Start address of program execution  (default 0x%04x)\n"
-                "    -d Debug break address                 (default 0x%04x)\n"
-                "    -i Debug instruction count             (default 0x%04x)\n"
                 "    -S Disassemble start instruction count (default 0x%08x)\n"
                 "    -E Disassemble end instruction count   (default 0x%08x)\n"
                 "    -c Enable 65C02 features               (default off)\n"
+                "    -D Disable testing and just run prog   (default enabled)\n"
                 "\n"
                           , argv[0]
                           , DEFAULT_PROG_FILE_NAME
                           , DEFAULT_LOAD_ADDR
                           , DEFAULT_START_ADDR
-                          , DEFAULT_DEBUG_ADDR
-                          , DEFAULT_DEBUG_ICOUNT
                           , DEFAULT_START_DIS_CNT
                           , DEFAULT_STOP_DIS_CNT
                           );
@@ -2601,26 +2594,13 @@ int main (int argc, char** argv)
         }
     }
 
-    if (read_bin)
+    // Select program format type, based on user selections
+    prog_type_e ptype = read_bin ? BIN : read_srecord ? SREC : HEX;
+
+    // Read in specified program to memory
+    if (cpu.read_prog(fname, ptype,  load_addr) != PROG_NO_ERROR)
     {
-        if (cpu.read_bin(fname, load_addr) != BIN_NO_ERROR)
-        {
-            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
-        }
-    }
-    else if (read_srecord)
-    {
-        if (cpu.read_srec (fname) != SREC_NO_ERROR)
-        {
-            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
-        }
-    }
-    else
-    {
-        if (cpu.read_ihx (fname) != IHX_NO_ERROR)
-        {
-            return BAD_FILE_OPEN; //LCOV_EXCL_LINE
-        }
+        return BAD_FILE_OPEN;
     }
 
     // Load the reset vector with the user start location, if specified
@@ -2631,7 +2611,7 @@ int main (int argc, char** argv)
     // Interrupt tests
     // ------------------------------------
 
-    if (!error)
+    if (!disable_testing && !error)
     {
         error = interrupt_test(mode_c, start_addr);
     }
@@ -2640,30 +2620,35 @@ int main (int argc, char** argv)
     // WAI and STP tests
     // ------------------------------------
 
-    if (!error && mode_c >= WDC)
+    // Only execute WAI and STP if selected opcode mode supports these
+    if (!disable_testing && !error && mode_c >= WDC)
     {
         error = wait_stop_tests(start_addr);
     }
 
     // ------------------------------------
-    // Main test
+    // Main test program run
     // ------------------------------------
 
     if (!error)
     {
-        // Load failure status to nominated location
-        cpu.wr_mem(TEST_STATUS_ADDR,    BAD_TEST_STATUS       & MASK_8BIT);
-        cpu.wr_mem(TEST_STATUS_ADDR+1, (BAD_TEST_STATUS >> 8) & MASK_8BIT);
-
-        // Assert a reset
-        cpu.reset();
-
         bool     terminate        = false;
         uint16_t prev_pc          = 0;
 
+        // Initialise status.pc to something for termination condition
+        status.pc = 0xffff;
+
+        if (!disable_testing)
+        {
+            // Load failure status to nominated location
+            cpu.wr_mem(TEST_STATUS_ADDR,    BAD_TEST_STATUS       & MASK_8BIT);
+            cpu.wr_mem(TEST_STATUS_ADDR+1, (BAD_TEST_STATUS >> 8) & MASK_8BIT);
+        }
+
         fprintf(stdout, "Executing %s from address 0x%04x ...\n\n", fname, start_addr); 
 
-        status.pc = 0xffff;
+        // Assert a reset
+        cpu.reset();
 
         // Start the clock
         pre_run_setup();  
@@ -2681,30 +2666,44 @@ int main (int argc, char** argv)
         // Stop the clock
         post_run_setup();
 
-        // Get test status values from memory
-        uint16_t test_status = (cpu.rd_mem(TEST_STATUS_ADDR+1) << 8) | cpu.rd_mem(TEST_STATUS_ADDR);
+        if (!disable_testing)
+        {
+            // Get test status values from memory
+            uint16_t test_status = (cpu.rd_mem(TEST_STATUS_ADDR+1) << 8) | cpu.rd_mem(TEST_STATUS_ADDR);
 
-        error = test_status != GOOD_TEST_STATUS;
+            error = test_status != GOOD_TEST_STATUS;
+        }
     }
 
-    if (!error)
+    // -----------------------------------
+    // Display PASS/FAIL result
+    // -----------------------------------
+
+    if (!disable_testing)
     {
-        fprintf(stdout, "********\n");
-        fprintf(stdout, "* PASS *\n");
-        fprintf(stdout, "********\n\n");
-
-        fprintf(stdout, "Executed %.2f million instructions (%.1f MIPS)\n\n", (float)instr_count/1e6, (float)instr_count/tv_diff);
+        if (!error)
+        {
+            fprintf(stdout, "********\n");
+            fprintf(stdout, "* PASS *\n");
+            fprintf(stdout, "********\n\n");
+        
+            fprintf(stdout, "Executed %.2f million instructions (%.1f MIPS)\n\n", (float)instr_count/1e6, (float)instr_count/tv_diff);
+        }
+        // LCOV_EXCL_START
+        else
+        {
+            fprintf(stderr, "********\n");
+            fprintf(stderr, "* FAIL *\n");
+            fprintf(stderr, "********\n\n");
+        
+            fprintf(stderr, "Terminated at PC = 0x%04x after %d instructions\n\n", status.pc, instr_count);
+        }
+        // LCOV_EXCL_STOP
     }
-    // LCOV_EXCL_START
     else
     {
-        fprintf(stderr, "********\n");
-        fprintf(stderr, "* FAIL *\n");
-        fprintf(stderr, "********\n\n");
-
         fprintf(stderr, "Terminated at PC = 0x%04x after %d instructions\n\n", status.pc, instr_count);
     }
-    // LCOV_EXCL_STOP
 
     return GOOD_RTN_STATUS;
 }

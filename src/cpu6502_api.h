@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.7 2017/01/27 11:21:48 simon Exp $
+// $Id: cpu6502_api.h,v 1.8 2017/01/31 14:29:56 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -71,6 +71,12 @@ enum cpu_type_e {
     WRK  = 2, // Additional instructions in WDC and Rockwell
     WDC  = 3, // Addition WDC only instructions
     DEFAULT   // Use default (or existing) mode
+};
+
+enum prog_type_e {
+    BIN,
+    HEX,
+    SREC
 };
 
 // Structure for return status of wy65_execute() function
@@ -193,14 +199,16 @@ public:
     // to allow interfacing with external memory system.
     void               register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t  p_rfunc);
 
-    // Read Binary, Intel HEX or Motorola S-Record files into memory. Call *after* 
-    // register_mem_funcs(), if this is used.
+    // Read program into memory. Call *after* register_mem_funcs(), if this is used.
+    int                read_prog          (const char *filename, const prog_type_e type = HEX, const uint16_t start_addr = 0);
+
+// Private member functions
+private:
+    // Read Binary, Intel HEX or Motorola S-Record files into memory
     int                read_bin           (const char *filename, const uint16_t start_addr = 0);
     int                read_ihx           (const char *filename);
     int                read_srec          (const char *filename);
 
-// Private member functions
-private:
     // Internal check and execution of maskable interrupts
     void               irq                (void);
 

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.h,v 1.5 2017/01/30 14:56:07 simon Exp $
+// $Id: cpu6502.h,v 1.6 2017/01/31 14:30:22 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.h,v $
 //
 //=============================================================
@@ -56,8 +56,6 @@ extern int optind;
 #define DEFAULT_PROG_FILE_NAME   "test.bin"
 #define DEFAULT_LOAD_ADDR        0x000a
 #define DEFAULT_START_ADDR       0x0400
-#define DEFAULT_DEBUG_ADDR       0x3d86
-#define DEFAULT_DEBUG_ICOUNT     0xffffffff
 #define DEFAULT_START_DIS_CNT    0xffffffff
 #define DEFAULT_STOP_DIS_CNT     0xffffffff
 #define BAD_TEST_STATUS          0x0bad

@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: read_ihx.cpp,v 1.5 2017/01/18 12:24:34 simon Exp $
+// $Id: read_ihx.cpp,v 1.6 2017/01/31 14:29:38 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/read_ihx.cpp,v $
 //
 //=============================================================
@@ -279,4 +279,41 @@ int cpu6502::read_bin (const char *filename, const uint16_t start_addr)
     fclose(file);
 
     return BIN_NO_ERROR;
+}
+
+// -------------------------------------------------------------------------
+// read_prog()
+//
+//   Read a file in one of three specified formats and write to memory. 
+//   Supported formats for type arguments are BIN, HEX and SREC, with a 
+//   default of HEX. A start_addr argument is needed (default of 0) if type 
+//   is BIN, as this information is not supplied in the binary file.
+//
+// -------------------------------------------------------------------------
+
+int cpu6502::read_prog (const char *filename, const prog_type_e type, const uint16_t start_addr)
+{
+    if (type == BIN)
+    {
+        if (read_bin(filename, start_addr) != BIN_NO_ERROR)
+        {
+            return BIN_FILE_ERROR; //LCOV_EXCL_LINE
+        }
+    }
+    else if (type == SREC)
+    {
+        if (read_srec (filename) != SREC_NO_ERROR)
+        {
+            return SREC_FILE_ERROR; //LCOV_EXCL_LINE
+        }
+    }
+    else
+    {
+        if (read_ihx (filename) != IHX_NO_ERROR)
+        {
+            return IHX_FILE_ERROR; //LCOV_EXCL_LINE
+        }
+    }
+
+    return PROG_NO_ERROR;
 }

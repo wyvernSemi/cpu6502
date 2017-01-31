@@ -21,7 +21,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: read_ihx.h,v 1.2 2017/01/12 10:02:55 simon Exp $
+// $Id: read_ihx.h,v 1.3 2017/01/31 14:29:38 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/read_ihx.h,v $
 //
 //=============================================================
@@ -60,5 +60,7 @@
 
 #define BIN_NO_ERROR                IHX_NO_ERROR
 #define BIN_FILE_ERROR              IHX_FILE_ERROR
+
+#define PROG_NO_ERROR               IHX_NO_ERROR
 
 #endif
