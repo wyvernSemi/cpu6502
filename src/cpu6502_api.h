@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.8 2017/01/31 14:29:56 simon Exp $
+// $Id: cpu6502_api.h,v 1.9 2017/02/02 10:51:42 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -43,9 +43,6 @@
 #ifndef WY65_MEM_SIZE
 #define WY65_MEM_SIZE                 0x10000
 #endif
-
-// Define WY65_INDIRECT_FIX to fix the NMOS 6502 indirection bug (i.e to be like 65C02)
-// #define WY65_INDIRECT_FIX
 
 // Define WY65_STANDALONE to add top level main() test function to drive model.
 // #define WY65_STANDALONE

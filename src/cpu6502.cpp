@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.12 2017/01/31 14:30:22 simon Exp $
+// $Id: cpu6502.cpp,v 1.13 2017/02/02 10:51:42 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -374,11 +374,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
     {
     case IND:
         tmp_addr      = rd_mem(p_regs->pc);
-#if !defined(WY65_INDIRECT_FIX) && !defined(WY65_65C02)
-        tmp_addr     |= rd_mem(((p_regs->pc+1) & MASK_8BIT) | (p_regs->pc & 0xff00)) << 8;
-#else
-        tmp_addr     |= rd_mem(p_regs->pc+1) << 8;
-#endif
+        tmp_addr     |= rd_mem(((p_regs->pc & MASK_8BIT) == MASK_8BIT && !state.mode_c) ? (p_regs->pc & 0xff00) :  p_regs->pc+1) << 8;
         addr          = rd_mem(tmp_addr);
         addr         |= rd_mem(tmp_addr+1) << 8;
         
