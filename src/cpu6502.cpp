@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.13 2017/02/02 10:51:42 simon Exp $
+// $Id: cpu6502.cpp,v 1.14 2017/02/06 16:38:17 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -415,7 +415,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
         break;
 
     case ZPG:
-        addr          = rd_mem(p_regs->pc);
+        addr          = rd_mem(p_regs->pc) & MASK_8BIT;
         p_regs->pc   += 1;
         break;
 
@@ -487,7 +487,8 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
 
 int cpu6502::ADC (const op_t* p_op) 
 {
-    bool page_crossed;
+    bool     page_crossed;
+    int32_t  result;
 
     bool bcd          = (state.regs.flags & BCD_MASK) ? true : false;
 
@@ -496,42 +497,52 @@ int cpu6502::ADC (const op_t* p_op)
 
     // Fetch the operand from memory
     uint8_t mem_val   = rd_mem(addr);
+    uint8_t acc       = state.regs.a;
 
-    // In BCD mode, convert accumulator and operand value back to a straight binary value
     if (bcd)
     {
-        state.regs.a  = (state.regs.a  & 0xf) + (state.regs.a  >> 4) * 10;
-        mem_val       = (mem_val & 0xf) + (mem_val >> 4) * 10;
+        uint8_t  tmp_c;
+        uint16_t lo_nib,    hi_nib;
+        uint16_t adj_lo_nib, adj_hi_nib;
+        
+        lo_nib            = (state.regs.a & MASK_LO_NIB) + (mem_val & MASK_LO_NIB) + (state.regs.flags & CARRY_MASK);
+        adj_lo_nib        = (lo_nib > 9) ? (lo_nib + 0x06) & MASK_LO_NIB : lo_nib;
+
+        tmp_c             = (lo_nib > 9) ? (1U << 4) : 0;
+                          
+        hi_nib            = (state.regs.a & MASK_HI_NIB) + (mem_val & MASK_HI_NIB) + tmp_c;
+        adj_hi_nib        = (hi_nib > 0x90) ? (hi_nib + 0x60) & MASK_HI_NIB : hi_nib;
+                          
+        state.regs.a      = (adj_hi_nib | adj_lo_nib) & MASK_8BIT;
+
+        // Clear affected flags
+        state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
+
+        state.regs.flags |= (state.regs.a == 0) ? ZERO_MASK : 0;
+        state.regs.flags |= state.regs.a & SIGN_MASK;
+        state.regs.flags |= (((hi_nib ^ acc) & SIGN_MASK) && !((acc ^ mem_val) & SIGN_MASK)) ? OVFLW_MASK : 0;
+        state.regs.flags |= (hi_nib > 0x90) ? CARRY_MASK : 0;
     }
-
-    // Do addition into extended result
-    int8_t a          = (int8_t)state.regs.a;
-    int8_t m          = (int8_t)mem_val;
-
-    int32_t result    = a  + m + ((state.regs.flags & CARRY_MASK) ? 1 : 0);
-    uint32_t res_uns  = state.regs.a  + mem_val + ((state.regs.flags & CARRY_MASK) ? 1 : 0);
-
-    // Clear affected flags
-    state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
-
-    // Set flags, based on extended result
-    state.regs.flags |= (res_uns >= (bcd ? 100U : 0x100U))        ? CARRY_MASK : 0;
-    state.regs.flags |= ((result & MASK_8BIT) == 0)               ? ZERO_MASK  : 0;
-    state.regs.flags |= (result < -128 || result > 127)           ? OVFLW_MASK : 0;
-    state.regs.flags |= (result & 0x80)                           ? SIGN_MASK  : 0;
-
-    // Store result in accumulator
-    state.regs.a      = result %  (bcd ? 100 : 0x100);
-
-    if (bcd)
+    else
     {
-        // Convert result back to BCD
-        state.regs.a  = (state.regs.a % 10) + ((state.regs.a / 10) << 4);
-
-        // Re-evaluate N and Z flags after adjustment
-        state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
-        state.regs.flags |=  (state.regs.a & 0x80) ? SIGN_MASK : 0;
-        state.regs.flags |= !(state.regs.a & 0xff) ? ZERO_MASK : 0;
+        // Do addition into extended result
+        int8_t a          = (int8_t)state.regs.a;
+        int8_t m          = (int8_t)mem_val;
+        
+        result            = a  + m + ((state.regs.flags & CARRY_MASK) ? 1 : 0);
+        uint32_t res_uns  = state.regs.a  + mem_val + ((state.regs.flags & CARRY_MASK) ? 1 : 0);
+        
+        // Clear affected flags
+        state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
+        
+        // Set flags, based on extended result
+        state.regs.flags |= (res_uns >=  0x100U)            ? CARRY_MASK : 0;
+        state.regs.flags |= ((result & MASK_8BIT) == 0)     ? ZERO_MASK  : 0;
+        state.regs.flags |= (result < -128 || result > 127) ? OVFLW_MASK : 0;
+        state.regs.flags |= (result & SIGN_MASK)            ? SIGN_MASK  : 0;
+        
+        // Store result in accumulator
+        state.regs.a      = result & MASK_8BIT;
     }
 
     // Return number of cycles used
@@ -551,7 +562,7 @@ int cpu6502::AND (const op_t* p_op)
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
     state.regs.flags |= (state.regs.a == 0)   ?  ZERO_MASK  : 0;
-    state.regs.flags |= (state.regs.a & 0x80) ?  SIGN_MASK  : 0;
+    state.regs.flags |= state.regs.a & SIGN_MASK;
 
     return p_op->exec_cycles + (page_crossed ? 1 : 0);
 }
@@ -563,22 +574,23 @@ int cpu6502::ASL (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint32_t result   = ((p_op->mode == ACC) ? state.regs.a : rd_mem(addr)) << 1;
+    uint8_t val      = ((p_op->mode == ACC) ? (uint32_t)state.regs.a : (uint32_t)rd_mem(addr));
+    uint8_t result   = val << 1;
 
     // Clear affected flags
     state.regs.flags &= ~(ZERO_MASK | CARRY_MASK | SIGN_MASK);
 
-    state.regs.flags |= (result % 0x100 == 0) ? ZERO_MASK  : 0;
-    state.regs.flags |= (result & 0x100)      ? CARRY_MASK : 0;
-    state.regs.flags |= (result & 0x80)       ? SIGN_MASK  : 0;
+    state.regs.flags |= !(result & MASK_8BIT) ? ZERO_MASK  : 0;
+    state.regs.flags |= (val & 0x80)          ? CARRY_MASK : 0;
+    state.regs.flags |= result & SIGN_MASK;
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & MASK_8BIT;
+        state.regs.a  = result;
     }
     else
     {
-        wr_mem(addr, result & MASK_8BIT);
+        wr_mem(addr, result);
     }
 
     // For 65C02 1 cycle quicker for ABX and no page crossing
@@ -662,8 +674,8 @@ int cpu6502::BIT (const op_t* p_op)
     {
       state.regs.flags &= ~(OVFLW_MASK | SIGN_MASK);
 
-      state.regs.flags |= (mem_val & 0x40) ? OVFLW_MASK : 0;
-      state.regs.flags |= (mem_val & 0x80) ? SIGN_MASK  : 0;
+      state.regs.flags |= mem_val & OVFLW_MASK;
+      state.regs.flags |= mem_val & SIGN_MASK;
     }
 
     return p_op->exec_cycles;
@@ -823,6 +835,9 @@ int cpu6502::CLI (const op_t* p_op)
 
     state.regs.flags &= ~(INT_MASK);
 
+    // After clearing the I flag, check for interrupt
+    irq();
+
     return p_op->exec_cycles;
 }
 
@@ -899,7 +914,7 @@ int cpu6502::DEC (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    int8_t result     = ((p_op->mode == ACC) ? state.regs.a : rd_mem(addr)) - 1;
+    uint8_t result    = ((p_op->mode == ACC) ? state.regs.a : rd_mem(addr)) - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -908,11 +923,11 @@ int cpu6502::DEC (const op_t* p_op)
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & MASK_8BIT;
+        state.regs.a  = result;
     }
     else
     {
-        wr_mem(addr, result & MASK_8BIT);
+        wr_mem(addr, result);
     }
 
     return p_op->exec_cycles;
@@ -925,7 +940,7 @@ int cpu6502::DEX (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    int8_t result     = state.regs.x - 1;
+    uint8_t result    = state.regs.x - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -944,7 +959,7 @@ int cpu6502::DEY (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    int8_t result     = state.regs.y - 1;
+    uint8_t result    = state.regs.y - 1;
 
     state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
 
@@ -1125,8 +1140,8 @@ int cpu6502::LSR (const op_t* p_op)
     // Fetch address of data (and update PC)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
-    uint32_t val      = (p_op->mode == ACC) ? state.regs.a : rd_mem(addr);
-    uint32_t result   = val >> 1; 
+    uint8_t val      = (p_op->mode == ACC) ? state.regs.a : rd_mem(addr);
+    uint8_t result   = (val >> 1) & 0x7f; 
 
     state.regs.flags &= ~(ZERO_MASK | CARRY_MASK | SIGN_MASK);
 
@@ -1136,11 +1151,11 @@ int cpu6502::LSR (const op_t* p_op)
 
     if (p_op->mode == ACC)
     {
-        state.regs.a  = result & MASK_8BIT;
+        state.regs.a  = result;
     }
     else
     {
-        wr_mem(addr, result & MASK_8BIT);
+        wr_mem(addr, result);
     }
 
     return p_op->exec_cycles;
@@ -1210,6 +1225,9 @@ int cpu6502::PLP (const op_t* p_op)
     
     state.regs.flags  = rd_mem(state.regs.sp | 0x100);
 
+    // I flags status updated, so check for interrupts
+    irq();
+
     return p_op->exec_cycles;
 }
 
@@ -1249,7 +1267,7 @@ int cpu6502::ROR (const op_t* p_op)
     uint32_t addr     = calc_addr(p_op->mode, &state.regs, page_crossed);
 
     uint32_t val      = (p_op->mode == ACC) ? state.regs.a : rd_mem(addr);
-    uint32_t result   = (val >> 1) | ((state.regs.flags & CARRY_MASK) ? 0x80 : 0);
+    uint32_t result   = ((val >> 1) & 0x7f) | ((state.regs.flags & CARRY_MASK) ? 0x80 : 0);
 
     state.regs.flags &= ~(ZERO_MASK | CARRY_MASK | SIGN_MASK);
 
@@ -1924,9 +1942,6 @@ wy65_exec_status_t cpu6502::execute (const uint32_t icount, const uint32_t start
     wy65_exec_status_t rtn_val;
     int                num_cycles;
 
-    // Check for maskable interrupts
-    irq();
-
     op.opcode         = rd_mem(state.regs.pc++);
 
     tbl_t curr_instr  = instr_tbl[op.opcode];
@@ -2047,6 +2062,9 @@ void cpu6502::activate_irq (const uint16_t id)
     {
         state.nirq_line  &= ~(1 << id);
     }
+
+    // Check for interrupt at each assertion of an IRQ line
+    irq();
 }
 
 // -------------------------------------------------------------------------

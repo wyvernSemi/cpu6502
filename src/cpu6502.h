@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.h,v 1.6 2017/01/31 14:30:22 simon Exp $
+// $Id: cpu6502.h,v 1.7 2017/02/06 16:35:02 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.h,v $
 //
 //=============================================================
@@ -85,9 +85,11 @@ extern int optind;
 
 #define INVALID_NEXT_PC          0xffffffff
 
-#define MASK_8BIT                0xff
-#define MASK_16BIT               0xffff
-#define MASK_32BIT               0xffffffff
+#define MASK_LO_NIB              0x0fU
+#define MASK_HI_NIB              0xf0U
+#define MASK_8BIT                0xffU
+#define MASK_16BIT               0xffffU
+#define MASK_32BIT               0xffffffffU
 
 #define NOP_OPCODE_BASE          0xea
 #define CLI_OPCODE               0x58
