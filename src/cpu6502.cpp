@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.14 2017/02/06 16:38:17 simon Exp $
+// $Id: cpu6502.cpp,v 1.15 2017/02/07 14:01:42 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -501,27 +501,35 @@ int cpu6502::ADC (const op_t* p_op)
 
     if (bcd)
     {
-        uint8_t  tmp_c;
-        uint16_t lo_nib,    hi_nib;
-        uint16_t adj_lo_nib, adj_hi_nib;
+        uint16_t tmp;
+        uint16_t lo_nib;
+        uint16_t hi_nib;
+        bool     bcd_carry;
         
-        lo_nib            = (state.regs.a & MASK_LO_NIB) + (mem_val & MASK_LO_NIB) + (state.regs.flags & CARRY_MASK);
-        adj_lo_nib        = (lo_nib > 9) ? (lo_nib + 0x06) & MASK_LO_NIB : lo_nib;
+        // Do low digit BCD addition and flag if result has carried ( > 9)
+        tmp               = (acc & MASK_LO_NIB) + (mem_val & MASK_LO_NIB) + (state.regs.flags & CARRY_MASK);
+        bcd_carry         = tmp > 9;
 
-        tmp_c             = (lo_nib > 9) ? (1U << 4) : 0;
-                          
-        hi_nib            = (state.regs.a & MASK_HI_NIB) + (mem_val & MASK_HI_NIB) + tmp_c;
-        adj_hi_nib        = (hi_nib > 0x90) ? (hi_nib + 0x60) & MASK_HI_NIB : hi_nib;
-                          
-        state.regs.a      = (adj_hi_nib | adj_lo_nib) & MASK_8BIT;
+        // Get low digit result, adjusting if carried
+        lo_nib            = bcd_carry ? (tmp + 0x06) & MASK_LO_NIB : tmp;
+                
+        // Do high digit BCD addition, adding in carry from low digit as applicable, and flag if carried
+        tmp               = (acc & MASK_HI_NIB) + (mem_val & MASK_HI_NIB) + (bcd_carry ? 0x10 : 0);
+        bcd_carry         = (tmp > 0x90);
+
+        // Get high digit result, adjusting if carried
+        hi_nib            = bcd_carry ? (tmp + 0x60) & MASK_HI_NIB : tmp;
+                     
+        // Combine two digits into accumulator
+        state.regs.a      = (hi_nib | lo_nib) & MASK_8BIT;
 
         // Clear affected flags
         state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
 
-        state.regs.flags |= (state.regs.a == 0) ? ZERO_MASK : 0;
+        state.regs.flags |= (state.regs.a == 0)                             ? ZERO_MASK  : 0;
+        state.regs.flags |= ((tmp & SIGN_MASK)==0) ^ ((acc & SIGN_MASK)==0) ? OVFLW_MASK : 0;
+        state.regs.flags |= bcd_carry                                       ? CARRY_MASK : 0;
         state.regs.flags |= state.regs.a & SIGN_MASK;
-        state.regs.flags |= (((hi_nib ^ acc) & SIGN_MASK) && !((acc ^ mem_val) & SIGN_MASK)) ? OVFLW_MASK : 0;
-        state.regs.flags |= (hi_nib > 0x90) ? CARRY_MASK : 0;
     }
     else
     {
@@ -1322,43 +1330,58 @@ int cpu6502::SBC (const op_t* p_op)
 
     // Fetch the operand from memory
     uint8_t mem_val   = rd_mem(addr);
-
-    // In BCD mode, convert accumulator and operand value back to a straight binary value
-    if (bcd)
-    {
-        state.regs.a  = (state.regs.a  & 0xf) + (state.regs.a  >> 4) * 10;
-        mem_val       = (mem_val & 0xf) + (mem_val >> 4) * 10;
-    }
-
-    // Do addition into extended result
-    int32_t a         = (int8_t)state.regs.a;
-    int32_t m         = (int8_t)mem_val;
-
-    uint32_t result   = a - m - ((state.regs.flags & CARRY_MASK) ? 0 : 1);
-    uint32_t res_uns  = state.regs.a - mem_val - ((state.regs.flags & CARRY_MASK) ? 0 : 1);
-
-    // Clear affected flags
-    state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
-
-    // Set flags, based on extended result
-    state.regs.flags |= !(res_uns >= (bcd ? 100U : 0x100U))       ?  CARRY_MASK : 0;
-    state.regs.flags |= ((result & MASK_8BIT) == 0)               ?  ZERO_MASK  : 0;
-    state.regs.flags |= (((result>>1) ^ res_uns) & 0x80) && !bcd  ?  OVFLW_MASK : 0;
-    state.regs.flags |= (result & 0x80)                           ?  SIGN_MASK  : 0;
+    uint8_t acc       = state.regs.a;
 
     if (bcd)
     {
-        // Convert result back to BCD
-        state.regs.a  = (((int32_t)result < 0) ? (result + 100) : result) % 100;
-        state.regs.a  = (state.regs.a % 10) + ((state.regs.a / 10) << 4);
+        int16_t tmp;
+        int16_t lo_nib;
+        int16_t hi_nib;
+        bool    bcd_borrow;
+        
+        // Do low digit BCD addition and flag if result has borrowed ( < 0)
+        tmp = (acc & MASK_LO_NIB) - (mem_val & MASK_LO_NIB) - ((state.regs.flags & CARRY_MASK) ? 0 : 1);
+        bcd_borrow = tmp < 0;
 
-        // Re-evaluate N and Z flags after adjustment
-        state.regs.flags &= ~(ZERO_MASK | SIGN_MASK);
-        state.regs.flags |=  (state.regs.a & SIGN_MASK) ? SIGN_MASK  : 0;
-        state.regs.flags |= !(state.regs.a & MASK_8BIT) ? ZERO_MASK  : 0;
+        // Get low digit result, adjusting if borrowed
+        lo_nib = bcd_borrow ? (tmp - 6) & MASK_LO_NIB : tmp;
+
+        // Do high digit BCD addition, factoring in borrow from low digit as applicable, and flag if borrowed
+        tmp = (acc & MASK_HI_NIB) - (mem_val & MASK_HI_NIB) - (bcd_borrow ? 0x10 : 0);
+        bcd_borrow = tmp < 0;
+
+        // Get high digit result, adjusting if borrowed
+        hi_nib = bcd_borrow ? (tmp - 0x60) & MASK_HI_NIB : tmp;
+
+        // Combine two digits into accumulator
+        state.regs.a  = hi_nib | lo_nib;
+
+        // Clear affected flags
+        state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
+
+        state.regs.flags |= (state.regs.a == 0)                                 ? ZERO_MASK  : 0;
+        state.regs.flags |= ((tmp & SIGN_MASK) == 0) ^ ((acc & SIGN_MASK) == 0) ? OVFLW_MASK : 0;
+        state.regs.flags |= !bcd_borrow                                         ? CARRY_MASK : 0;
+        state.regs.flags |= state.regs.a & SIGN_MASK;
     }
     else
     {
+        // Do addition into extended result
+        int32_t a         = (int8_t)state.regs.a;
+        int32_t m         = (int8_t)mem_val;
+        
+        uint32_t result   = a - m - ((state.regs.flags & CARRY_MASK) ? 0 : 1);
+        uint32_t res_uns  = state.regs.a - mem_val - ((state.regs.flags & CARRY_MASK) ? 0 : 1);
+        
+        // Clear affected flags
+        state.regs.flags &= ~(CARRY_MASK | ZERO_MASK | OVFLW_MASK | SIGN_MASK);
+        
+        // Set flags, based on extended result
+        state.regs.flags |= !(res_uns >=  0x100U)             ?  CARRY_MASK : 0;
+        state.regs.flags |= ((result & MASK_8BIT) == 0)       ?  ZERO_MASK  : 0;
+        state.regs.flags |= (((result>>1) ^ res_uns) & 0x80)  ?  OVFLW_MASK : 0;
+        state.regs.flags |= (result & 0x80)                   ?  SIGN_MASK  : 0;
+        
         // Store result in accumulator
         state.regs.a  = result & MASK_8BIT;
     }
