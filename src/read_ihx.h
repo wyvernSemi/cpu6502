@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2012 Simon Southwell. All rights reserved.
+// Copyright (c) 2012-2017 Simon Southwell. All rights reserved.
 //
 // Date: 25th August 2012  
 //
@@ -21,7 +21,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: read_ihx.h,v 1.3 2017/01/31 14:29:38 simon Exp $
+// $Id: read_ihx.h,v 1.4 2017/02/11 08:41:46 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/read_ihx.h,v $
 //
 //=============================================================

@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016-2017 Simon Southwell. All rights reserved.
 //
 // Date: 18th December 2016
 //
@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.15 2017/02/07 14:01:42 simon Exp $
+// $Id: cpu6502.cpp,v 1.16 2017/02/11 08:42:28 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -2746,4 +2746,3 @@ int main (int argc, char** argv)
 }
 
 #endif
-

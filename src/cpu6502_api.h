@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016-2017 Simon Southwell. All rights reserved.
 //
 // Date: 18th December 2016
 //
@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.9 2017/02/02 10:51:42 simon Exp $
+// $Id: cpu6502_api.h,v 1.10 2017/02/11 08:43:24 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -45,10 +45,18 @@
 #endif
 
 // Define WY65_STANDALONE to add top level main() test function to drive model.
+
 // #define WY65_STANDALONE
 
 // Define WY65_EN_PRINT_CYCLES to enable cycle counts in disassemble output
+
 // #define WY65_EN_PRINT_CYCLES
+
+// Define LIB6502_DLL_LINKAGE in windows projects that will link to lib6502 
+// as a DLL, else leave undefined for projects that compile in the source 
+// code as part of their project.
+
+// #define LIB6502_DLL_LINKAGE
 
 // -------------------------------------------------------------------------
 // DEFINES (non-override-able)
@@ -56,6 +64,17 @@
 
 // The 8 bit architecture give a maximum of 256 possible opcodes.
 #define WY65_INSTR_SPACE_SIZE         256
+
+#if (defined(_WIN32) || defined(_WIN64)) && defined (LIB6502_DLL_LINKAGE)
+// The DLL build needs to export, whereas those linking to it need import definitions
+# ifdef LIB6502_EXPORTS
+#  define LIB6502_API __declspec(dllexport) 
+# else
+#  define LIB6502_API __declspec(dllimport) 
+# endif
+#else
+# define LIB6502_API
+#endif
 
 // -------------------------------------------------------------------------
 // TYPE DEFINITIONS
@@ -168,36 +187,36 @@ private:
 public:
 
     // Constructor
-                       cpu6502(); 
+    LIB6502_API                    cpu6502(); 
 
     // Reset function. Also clears cycle count and any active IRQ lines. Sets
     // supported opcode mode (default BASE)
-    void               reset              (cpu_type_e mode                 = DEFAULT);
+    LIB6502_API void               reset              (cpu_type_e mode         = DEFAULT);
 
     // Generate an NMI. NMI is falling edge triggered, and this function call
     // emulates this single event.
-    void               nmi_interrupt      (void);
+    LIB6502_API void               nmi_interrupt      (void);
 
     // Activate (set to 0)/ deactive (set 1) a level sensitive IRQ line, with optional ID (default 0). 
     // ID can be used to emulate up to 16 wire-ORed IRQs.
-    void               activate_irq       (const uint16_t id               = 0);
-    void               deactivate_irq     (const uint16_t id               = 0);
+    LIB6502_API void               activate_irq       (const uint16_t id       = 0);
+    void                           deactivate_irq     (const uint16_t id       = 0);
 
     // Execute a single instruction. Internally checks for outstanding IRQ first, 
     // before proceeding to execute an instruction. Optional control of disassembling
     // instruction if icount is between start_count and stop_count. Jump marks
     // (marked spaces between PC discontinuities) can be enabled/disabled.
-    wy65_exec_status_t execute            (const uint32_t icount           = 0, 
-                                           const uint32_t start_count      = 0xffffffff, 
-                                           const uint32_t stop_count       = 0xffffffff,
-                                           const bool     en_jmp_mrks      = true);
+    LIB6502_API wy65_exec_status_t execute            (const uint32_t icount           = 0, 
+                                                       const uint32_t start_count      = 0xffffffff, 
+                                                       const uint32_t stop_count       = 0xffffffff,
+                                                       const bool     en_jmp_mrks      = true);
 
     // Register external memory functions for use in memory read/write accesses,
     // to allow interfacing with external memory system.
-    void               register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t  p_rfunc);
+    LIB6502_API void               register_mem_funcs (wy65_p_writemem_t p_wfunc, wy65_p_readmem_t  p_rfunc);
 
     // Read program into memory. Call *after* register_mem_funcs(), if this is used.
-    int                read_prog          (const char *filename, const prog_type_e type = HEX, const uint16_t start_addr = 0);
+    LIB6502_API int                read_prog          (const char *filename, const prog_type_e type = HEX, const uint16_t start_addr = 0);
 
 // Private member functions
 private:
