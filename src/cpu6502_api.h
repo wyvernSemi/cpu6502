@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.10 2017/02/11 08:43:24 simon Exp $
+// $Id: cpu6502_api.h,v 1.11 2017/03/03 10:34:41 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -57,6 +57,13 @@
 // code as part of their project.
 
 // #define LIB6502_DLL_LINKAGE
+
+#define PUBLIC  public
+#ifndef BITMATCH
+#define PRIVATE private
+#else
+#define PRIVATE public
+#endif
 
 // -------------------------------------------------------------------------
 // DEFINES (non-override-able)
@@ -140,7 +147,7 @@ typedef int  (*wy65_p_readmem_t) (int);
 class cpu6502
 {
 // Type definitions private to this class
-private:
+PRIVATE:
     // Address mode enumeration
     enum addr_mode_e {
         IND,
@@ -184,7 +191,7 @@ private:
     } tbl_t; 
 
 // Public methods
-public:
+PUBLIC:
 
     // Constructor
     LIB6502_API                    cpu6502(); 
@@ -219,7 +226,7 @@ public:
     LIB6502_API int                read_prog          (const char *filename, const prog_type_e type = HEX, const uint16_t start_addr = 0);
 
 // Private member functions
-private:
+PRIVATE:
     // Read Binary, Intel HEX or Motorola S-Record files into memory
     int                read_bin           (const char *filename, const uint16_t start_addr = 0);
     int                read_ihx           (const char *filename);
@@ -260,9 +267,9 @@ private:
 
 #ifdef WY65_STANDALONE
 // In stand-alone mode, export the local memory access methods, otherwise keep private
-public:
+PUBLIC:
 #else
-private:
+PRIVATE:
 #endif
     // Write to memory---either local, or via externally set method
     inline void        wr_mem             (int addr, unsigned char data) {
@@ -274,12 +281,16 @@ private:
 
     // Read from memory---either local, or via externally set method
     inline int         rd_mem             (int addr) {
-                                               if (ext_rd_mem != NULL) 
+                                               if (ext_rd_mem != NULL
+#ifdef BITMATCH
+                                                   && addr != 0xfe81 // When bitmatching on BeebEm, don't read from the FDC result register (it's a pop read)
+#endif
+                                                   ) 
                                                    return ext_rd_mem(addr);   // LCOV_EXCL_LINE
                                                else 
                                                    return state.mem[addr]; 
                                            };
-private:
+PRIVATE:
     // Instructions functions for base 6502 implementation
     int                ADC                (const op_t* op);
     int                AND                (const op_t* op);
@@ -355,7 +366,7 @@ private:
     int                STP                (const op_t* op);
 
 // Private member variables
-private:
+PRIVATE:
 
     // Pointers to external memory access methods. When NULL, internal memory used
     wy65_p_writemem_t  ext_wr_mem;

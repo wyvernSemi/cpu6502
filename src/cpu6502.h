@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.h,v 1.8 2017/02/11 08:42:12 simon Exp $
+// $Id: cpu6502.h,v 1.9 2017/03/03 11:15:39 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.h,v $
 //
 //=============================================================
@@ -104,5 +104,18 @@ extern int optind;
 #define TEST_ADDR2               0xfff2
 #define TEST_STATUS_ADDR         0xfff8
 #define TEST_ADDR3               0x0400
+
+// The 65C02 0x4B NOP instruction needs to be a two byte instruction
+// (apparently) when running on the BeeEm platform. Otherwise some programs
+// do not work correctly (e.g. Zalaga). But the 65c02 should map all 
+// undocumented instructions to NOP (with no operand), and the test_65c02.a65
+// code expects this, and fails if it isn't. So make it different when
+// in BeebEm (where TEST_CPU6502 will be defined).
+
+#ifdef TEST_CPU6502
+#define N4B                      IMM /* two byte instruction */
+#else   
+#define N4B                      NON /* Single byte instruction */
+#endif
 
 #endif

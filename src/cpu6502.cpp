@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502.cpp,v 1.16 2017/02/11 08:42:28 simon Exp $
+// $Id: cpu6502.cpp,v 1.18 2017/03/03 11:15:00 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502.cpp,v $
 //
 //=============================================================
@@ -167,7 +167,7 @@ cpu6502::cpu6502()
     set_tbl_entry(instr_tbl[idx++], "PHA",  &cpu6502::PHA, 3, NON, BASE /* 0x48 */);
     set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 2, IMM, BASE /* 0x49 */);
     set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 2, ACC, BASE /* 0x4A */);
-    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, NON, C02  /* 0x4B */);
+    set_tbl_entry(instr_tbl[idx++], "NOP",  &cpu6502::NOP, 1, N4B, C02  /* 0x4B */);
     set_tbl_entry(instr_tbl[idx++], "JMP",  &cpu6502::JMP, 3, ABS, BASE /* 0x4C */);
     set_tbl_entry(instr_tbl[idx++], "EOR",  &cpu6502::EOR, 4, ABS, BASE /* 0x4D */);
     set_tbl_entry(instr_tbl[idx++], "LSR",  &cpu6502::LSR, 6, ABS, BASE /* 0x4E */);
@@ -374,7 +374,7 @@ uint32_t cpu6502::calc_addr(const addr_mode_e mode, wy65_reg_t* p_regs, bool &pg
     {
     case IND:
         tmp_addr      = rd_mem(p_regs->pc);
-        tmp_addr     |= rd_mem(((p_regs->pc & MASK_8BIT) == MASK_8BIT && !state.mode_c) ? (p_regs->pc & 0xff00) :  p_regs->pc+1) << 8;
+        tmp_addr     |= rd_mem(((p_regs->pc & MASK_8BIT) == MASK_8BIT && state.mode_c == BASE) ? (p_regs->pc & 0xff00) :  p_regs->pc+1) << 8;
         addr          = rd_mem(tmp_addr);
         addr         |= rd_mem(tmp_addr+1) << 8;
         
