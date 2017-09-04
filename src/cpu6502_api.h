@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: cpu6502_api.h,v 1.11 2017/03/03 10:34:41 simon Exp $
+// $Id: cpu6502_api.h,v 1.12 2017/09/03 14:48:35 simon Exp $
 // $Source: /home/simon/CVS/src/cpu/cpu6502/src/cpu6502_api.h,v $
 //
 //=============================================================
@@ -126,7 +126,7 @@ typedef struct
 // Collected internal state of processor model 
 typedef struct 
 {
-    uint8_t           mem [WY65_MEM_SIZE];
+    //uint8_t           mem [WY65_MEM_SIZE];
     wy65_reg_t        regs;
     uint64_t          cycles;
     uint16_t          nirq_line;
@@ -225,6 +225,17 @@ PUBLIC:
     // Read program into memory. Call *after* register_mem_funcs(), if this is used.
     LIB6502_API int                read_prog          (const char *filename, const prog_type_e type = HEX, const uint16_t start_addr = 0);
 
+    // Save and restore internal state to/from a file (that's already been opened). 
+    // If *fp is NULL, just return size of state to be saved, else # byte written.
+    LIB6502_API int                save_state         (FILE* fp) {if (fp != NULL) return fwrite(&state, 1, sizeof(wy65_cpu_state_t), fp); 
+                                                                  else return sizeof(wy65_cpu_state_t);};
+    LIB6502_API int                restore_state      (FILE* fp) {if (fp != NULL) return fread (&state, 1, sizeof(wy65_cpu_state_t), fp); 
+                                                                  else return sizeof(wy65_cpu_state_t);};
+    LIB6502_API int                save_mem           (FILE* fp) {if (fp != NULL) return fwrite(&mem,   1, sizeof(WY65_MEM_SIZE), fp);
+                                                                  else return sizeof(WY65_MEM_SIZE);};
+    LIB6502_API int                restore_mem        (FILE* fp) {if (fp != NULL) return fread (&mem,   1, sizeof(WY65_MEM_SIZE), fp);
+                                                                  else return sizeof(WY65_MEM_SIZE);};
+
 // Private member functions
 PRIVATE:
     // Read Binary, Intel HEX or Motorola S-Record files into memory
@@ -276,7 +287,7 @@ PRIVATE:
                                               if (ext_wr_mem != NULL) 
                                                   ext_wr_mem(addr, data);   // LCOV_EXCL_LINE
                                               else 
-                                                  state.mem[addr] = data;
+                                                  mem[addr] = data;
                                           };
 
     // Read from memory---either local, or via externally set method
@@ -288,7 +299,7 @@ PRIVATE:
                                                    ) 
                                                    return ext_rd_mem(addr);   // LCOV_EXCL_LINE
                                                else 
-                                                   return state.mem[addr]; 
+                                                   return mem[addr]; 
                                            };
 PRIVATE:
     // Instructions functions for base 6502 implementation
@@ -381,6 +392,7 @@ PRIVATE:
 
     // CPU state
     wy65_cpu_state_t   state;
+    uint8_t            mem [WY65_MEM_SIZE];
 };
 
 #endif
