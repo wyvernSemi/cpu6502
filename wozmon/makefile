@@ -31,7 +31,7 @@ WOZSRC          = $(WOZROOTNAME).asm
 
 MODELSRC        = main.cpp
 MODELEXE        = $(MODELSRC:%.cpp=%.exe)
-MODELOPTS       = -g -DWOZMON -Wno-write-strings -I../src -L. -lcpu6502
+MODELOPTS       = -g -DWOZMON -Wno-write-strings -I../src
 MODELLIBS       = -L. -lcpu6502
 
 ifeq (${OSTYPE}, Linux)
