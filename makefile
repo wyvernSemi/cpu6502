@@ -50,10 +50,11 @@ OBJECTS=${SRCFILES:%.cpp=%.o}
 # Default user and C compile options, which can be
 # overidden
 USROPTS=
+STDALONE=-DWY65_STANDALONE
 COPTS=-Ofast
 
 # Common C options (don't override)
-COPTSCOMM=-I${SRCDIR}/ -Wno-write-strings -DWY65_STANDALONE
+COPTSCOMM=-I${SRCDIR}/ -Wno-write-strings ${STDALONE}
 
 CC=g++
 ASM=as65

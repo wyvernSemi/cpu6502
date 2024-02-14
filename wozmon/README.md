@@ -1,0 +1,5 @@
+# cpu6502 based system capable of running Woz Monitor
+
+This directory contains the orignal Woz Monitor code for the Apple 1 computer (<tt>wozmon.asm</tt>) and top level code to instantiate the cpu6502 processor model with a simple PIA model that has memory mapped registers between <tt>0xD0010</tt> and <tt>0xD0013</tt> for keyboard input and character display output, to match that expected for the source code.
+
+A <tt>makefile</tt> is used to compile the cpu6502 library, the main top level code and assemble wozman. To compile and run the code use <tt>make run</tt>. This has been tested on MSYS2/mingw-64 and the <tt>gcc</tt> toolchain. Assembly of Woz Monitor code relies on <tt>vasm</tt>, compiled with <tt>CPU=6502</tt> and <tt>SYNTAX=oldstyle</tt>. By default, the VASM binary is assumed to be on the path and renamed/symbolic-linked as <tt>vasm</tt>, but the <tt>ASMEXE</tt> make file variable defines this and can be overridden.

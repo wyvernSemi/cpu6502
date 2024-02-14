@@ -276,7 +276,7 @@ PRIVATE:
     // Utility to convert an ASCII hex string to an integer
     int                hex2int            (const uint8_t *buf, int num_chars);
 
-#ifdef WY65_STANDALONE
+#if defined(WY65_STANDALONE) or defined(WOZMON)
 // In stand-alone mode, export the local memory access methods, otherwise keep private
 PUBLIC:
 #else
