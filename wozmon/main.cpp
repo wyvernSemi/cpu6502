@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
 
 #include "cpu6502.h"
 
@@ -37,16 +38,25 @@
 // DEFINES
 // -------------------------------------------------------------------------
 
-#define DONT_CARE   0
-#define MEMTOP      0x10000
-#define START_ADDR  0xff00
+#define STRBUFSIZE      256
 
-#define KBD         0xD010
-#define KBDCR       0xD011
-#define DSP         0xD012
-#define DSPCR       0xD013
+#define DONT_CARE       0
+#define MEMTOP          0x10000
+#define START_ADDR      0xff00
 
-#define PROGNAME    "wozmon.ihex"
+#define KBD             0xD010
+#define KBDCR           0xD011
+#define DSP             0xD012
+#define DSPCR           0xD013
+
+#define LOAD_BIN_ADDR   0x8000
+#define RST_VECTOR      0xFF00
+
+#define HEXPROGNAME     "cpu6502.ihex"
+#define BINPROGNAME     "cpu6502.bin"
+
+#define MSBAS_RSTADDR   0x8000
+
 
 // -------------------------------------------------------------------------
 // MACRO DEFINITIONS
@@ -62,6 +72,7 @@
 // -------------------------------------------------------------------------
 
 static uint8_t mem[MEMTOP];
+static bool    nolf;
 
 // -------------------------------------------------------------------------
 // Keyboard input LINUX/mingw64 emulation functions
@@ -136,16 +147,17 @@ void write_cb (int addr, unsigned char wbyte)
     // PIA register
     else
     {
-        //fprintf(stderr, "addr=0x0%4x wbyte=0x%02x\n", addr, wbyte);
         switch(addr)
         {
         // If a CR, output CR and LF
         case DSP:
-            //fprintf(stderr, "0x%02x\n", wbyte);
             if ((wbyte & 0x7f) == 0x0d)
             {
                 LM32_OUTPUT_TTY(0x0d);
-                LM32_OUTPUT_TTY(0x0a);
+                if (!nolf)
+                {
+                    LM32_OUTPUT_TTY(0x0a);
+                }
             }
             // Valid byte if top bit set. Output with b7 cleared.
             else if (wbyte > 0x7f)
@@ -207,29 +219,123 @@ int  read_cb  (int addr)
 }
 
 // -------------------------------------------------------------------------
+// Command line argument parser
+// -------------------------------------------------------------------------
+
+static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_type_e &type, int &load_addr, int &rst_vector, char* fname)
+{
+    char option;
+
+    // Default setting
+    nolf       = false;
+    disassem   = false;
+    load_addr  = LOAD_BIN_ADDR;
+    rst_vector = RST_VECTOR;
+    type       = HEX;
+    strncpy(fname, HEXPROGNAME, STRBUFSIZE);
+
+    // Process command line options
+    while ((option = getopt(argc, argv, "f:t:l:r:ndh")) != EOF)
+    {
+        switch(option)
+        {
+        case 'n':
+            nolf              = true;
+            break;
+        case 'd':
+            disassem          = true;
+            break;
+        case 'l':
+            load_addr         = (int)(strtol(optarg, NULL, 0) & 0xffff);
+            break;
+        case 'r':
+            rst_vector        = (int)(strtol(optarg, NULL, 0) & 0xffff);
+            break;
+        case 't':
+            if (!strcmp(optarg, "BIN") || !strcmp(optarg, "bin"))
+            {
+              type            = BIN;
+              strncpy(fname, BINPROGNAME, STRBUFSIZE);
+            }
+            else if (!strcmp(optarg, "HEX") || !(strcmp(optarg, "hex")))
+            {
+              type            = HEX;
+            }
+            else
+            {
+                fprintf(stderr, "Unrecognised file type\n");
+                return 1;
+            }
+            break;
+        case 'f':
+            fname             = optarg;
+            break;
+        case 'h':
+            fprintf(stderr, "Usage: %s [-f <filename>][-l <addr>>][-t <program type>][n][-d]\n\n"
+                "    -t Program format type                 (default HEX)\n"
+                "    -f program file name                   (default %s.[ihex|bin] depending on format)\n"
+                "    -l Load start address of binary image  (default 0x%04x)\n"
+                "    -r Reset vector address                (default 0x%04x)\n"
+                "    -n Disable line feed generation        (default false)\n"
+                "    -d Enable disassembly                  (default false)\n"
+                "\n"
+                          , argv[0]
+                          , "cpu6502"
+                          , LOAD_BIN_ADDR
+                          , RST_VECTOR
+                          );
+            return 1;
+            break;
+        }
+    }
+
+    return 0;
+}
+
+
+// -------------------------------------------------------------------------
 // ---------------------------  M  A  I  N  --------------------------------
 // -------------------------------------------------------------------------
 
 int main (int argc, char** argv)
 {
+    bool        disassem = false;
+    prog_type_e type = HEX;
+    char        fname[STRBUFSIZE];
+    int         load_addr;
+    int         rst_vector;
+
+    // Parse command line arguments
+    if (parse_args(argc, argv, nolf, disassem, type, load_addr, rst_vector, fname))
+    {
+        return 1;
+    }
+
     // Create a cp6502 CPU object
     cpu6502 *p_cpu = new cpu6502;
-
-    // Initialise the output terminal
-    init_term();
 
     // Register the memory access callback functions
     p_cpu->register_mem_funcs(write_cb, read_cb);
 
-    // Load the Woz monitor program to memory
-    p_cpu->read_prog(PROGNAME, HEX, DONT_CARE);
+    if (p_cpu->read_prog(fname, type, load_addr))
+    {
+        fprintf(stderr, "***ERROR: failed to load program\n");
+        return 1;
+    }
+
+    // Set the reset vector
+    p_cpu->wr_mem(RESET_VEC_ADDR,    rst_vector       & MASK_8BIT);
+    p_cpu->wr_mem(RESET_VEC_ADDR+1, (rst_vector >> 8) & MASK_8BIT);
 
     // Reset the CPU and choose Western Digital instruction extensions
     p_cpu->reset(WDC);
 
-    // Execution loop (forever)
-    while (true)
-    {
-        p_cpu->execute();
-    }
+    // Initialise the output terminal
+    init_term();
+
+    // Run forever
+    p_cpu->run_forever(disassem);
+
+    // Shouldn't reach this point
+    return 0;
 }
