@@ -26,11 +26,15 @@
 # Get OS type
 OSTYPE:=$(shell uname)
 
+OPDIR           = .
+
 WOZROOTNAME     = wozmon
 WOZSRC          = $(WOZROOTNAME).asm
 
+TARGETNAME      = cpu6502
+
 MODELSRC        = main.cpp
-MODELEXE        = $(MODELSRC:%.cpp=%.exe)
+MODELEXE        = $(OPDIR)/$(MODELSRC:%.cpp=%.exe)
 MODELOPTS       = -g -DWOZMON -Wno-write-strings -I../src
 MODELLIBS       = -L. -lcpu6502
 
@@ -53,11 +57,11 @@ C++             = g++
 all: $(MODELEXE) ihex
 
 # Targets for different assembler output formats
-bin:  $(WOZROOTNAME).bin
-ihex: $(WOZROOTNAME).ihex
-srec: $(WOZROOTNAME).srec
+bin:  $(TARGETNAME).bin
+ihex: $(TARGETNAME).ihex
+srec: $(TARGETNAME).srec
 
-# Rule to comile cpu6502 CPU library
+# Rule to compile cpu6502 CPU library
 $(CPULIB):
 	@make --no-print-directory -C .. $(CPULIBOPTS) $@
 	@mv ../$(CPULIB) .
@@ -67,15 +71,15 @@ $(MODELEXE): $(MODELSRC) $(CPULIB)
 	@$(C++) $(MODELOPTS) $^ $(MODELLIBS) -o $@
 
 # Rule to assemble binary output
-$(WOZROOTNAME).bin: $(WOZSRC)
+$(TARGETNAME).bin: $(WOZSRC)
 	@$(ASMEXE) $(ASMOPTS) -Fbin $(WOZSRC) -o $@
 
 # Rule to assemble Intel hex output
-$(WOZROOTNAME).ihex: $(WOZSRC)
+$(TARGETNAME).ihex: $(WOZSRC)
 	@$(ASMEXE) $(ASMOPTS) -Fihex $(WOZSRC) -o $@
 
 # Rule to assemble Motorola S-Record output
-$(WOZROOTNAME).srec: $(WOZSRC)
+$(TARGETNAME).srec: $(WOZSRC)
 	@$(ASMEXE) $(ASMOPTS) -Fsrec $(WOZSRC) -o $@
 
 # --------------------------------------------------------
@@ -84,7 +88,7 @@ $(WOZROOTNAME).srec: $(WOZSRC)
 
 clean:
 	@make --no-print-directory -C .. clean
-	@rm -rf $(WOZROOTNAME).bin $(WOZROOTNAME).ihex $(WOZROOTNAME).srec $(WOZROOTNAME).lst $(CPULIB) $(MODELEXE)
+	@rm -rf $(TARGETNAME).bin $(TARGETNAME).ihex $(TARGETNAME).srec $(WOZROOTNAME).lst $(CPULIB) $(MODELEXE)
     
 # --------------------------------------------------------
 # Execution rules
