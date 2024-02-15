@@ -67,7 +67,7 @@ NEXTITEM:       LDA IN,Y        ; Get character.
                 CMP #':'+$80    ; ":"?
                 BEQ SETSTOR     ; Yes. Set STOR mode.
                 CMP #'R'+$80    ; "R"?
-                BEQ RUN         ; Yes. Run user program.
+                BEQ RUNPROG     ; Yes. Run user program.
                 STX L           ; $00->L.
                 STX H           ;  and H.
                 STY YSAV        ; Save Y for comparison.
@@ -100,7 +100,7 @@ NOTHEX:         CPY YSAV        ; Check if L, H empty (no hex digits).
                 BNE NEXTITEM    ; Get next item. (no carry).
                 INC STH         ; Add carry to ‘store index’ high order.
 TONEXTITEM:     JMP NEXTITEM    ; Get next command item.
-RUN:            JMP (XAML)      ; Run at current XAM index.
+RUNPROG:        JMP (XAML)      ; Run at current XAM index.
 NOTSTOR:        BMI XAMNEXT     ; B7=0 for XAM, 1 for BLOCK XAM.
                 LDX #$02        ; Byte count.
 SETADR:         LDA L-1,X       ; Copy hex data to
