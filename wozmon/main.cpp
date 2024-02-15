@@ -271,7 +271,7 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
             fname             = optarg;
             break;
         case 'h':
-            fprintf(stderr, "Usage: %s [-f <filename>][-l <addr>>][-t <program type>][n][-d]\n\n"
+            fprintf(stderr, "Usage: %s [-f <filename>][-l <addr>][-t <program type>][n][-d]\n\n"
                 "    -t Program format type                 (default HEX)\n"
                 "    -f program file name                   (default %s.[ihex|bin] depending on format)\n"
                 "    -l Load start address of binary image  (default 0x%04x)\n"
