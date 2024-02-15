@@ -217,6 +217,8 @@ PUBLIC:
                                                        const uint32_t start_count      = 0xffffffff, 
                                                        const uint32_t stop_count       = 0xffffffff,
                                                        const bool     en_jmp_mrks      = true);
+                                                       
+    LIB6502_API void               run_forever        (bool disassem = false) { while(true) execute(0, disassem ? 0 : 0xffffffff, 0xffffffff); }
 
     // Register external memory functions for use in memory read/write accesses,
     // to allow interfacing with external memory system.
