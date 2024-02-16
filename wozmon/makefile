@@ -33,8 +33,10 @@ WOZSRC          = $(WOZROOTNAME).asm
 
 TARGETNAME      = cpu6502
 
-MODELSRC        = main.cpp
-MODELEXE        = $(OPDIR)/$(MODELSRC:%.cpp=%.exe)
+MODELTOP        = main.cpp
+MODELSRC        = $(MODELTOP) pia.cpp
+MODELHDRS       = $(wildcard *.h)
+MODELEXE        = $(OPDIR)/$(MODELTOP:%.cpp=%.exe)
 MODELOPTS       = -g -DWOZMON -Wno-write-strings -I../src
 MODELLIBS       = -L. -lcpu6502
 
@@ -64,8 +66,8 @@ $(CPULIB):
 	@mv ../$(CPULIB) .
 
 # Executable model
-$(MODELEXE): $(MODELSRC) $(CPULIB)
-	@$(C++) $(MODELOPTS) $^ $(MODELLIBS) -o $@
+$(MODELEXE): $(MODELSRC) $(MODELHDRS) $(CPULIB)
+	@$(C++) $(MODELOPTS) $(MODELSRC) $(MODELLIBS) -o $@
 
 # Rule to assemble binary output
 $(TARGETNAME).bin: $(WOZSRC)

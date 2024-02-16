@@ -27,46 +27,24 @@
 #include <cstring>
 
 #include "cpu6502.h"
-
-#if defined _WIN32 || defined _WIN64
-#include <conio.h>
-#else
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#endif
+#include "pia.h"
 
 // -------------------------------------------------------------------------
-// DEFINES
+// LOCAL DEFINES
 // -------------------------------------------------------------------------
 
 #define STRBUFSIZE      256
-
-#define DONT_CARE       0
 #define MEMTOP          0x10000
-#define START_ADDR      0xff00
-
-#define KBD             0xD010
-#define KBDCR           0xD011
-#define DSP             0xD012
-#define DSPCR           0xD013
-
+#define RAMTOP          0x8000
+#define PAGEMASK        0xF000
+#define PIAPAGEADDR     0xD000
 #define LOAD_BIN_ADDR   0x8000
 
+#define UNSET           -1
+
+// Default filenames
 #define HEXPROGNAME     "cpu6502.ihex"
 #define BINPROGNAME     "cpu6502.bin"
-
-#define CR              0x0D
-#define LF              0x0A
-
-// -------------------------------------------------------------------------
-// MACRO DEFINITIONS
-// -------------------------------------------------------------------------
-
-// Hide input and output function specifics for ease of future updating
-#define LM32_OUTPUT_TTY(_x) {putchar(_x);}
-#define LM32_INPUT_RDY_TTY _kbhit
-#define LM32_GET_INPUT_TTY _getch
 
 // -------------------------------------------------------------------------
 // LOCAL STATICS
@@ -74,131 +52,26 @@
 
 static uint8_t mem[MEMTOP];
 static bool    nolf;
-
-// -------------------------------------------------------------------------
-// Keyboard input LINUX/mingw64 emulation functions
-// -------------------------------------------------------------------------
-
-#if !(defined _WIN32) && !defined(_WIN64)
-// -------------------------------------------------------------------------
-// Keyboard input LINUX/CYGWIN emulation functions
-// -------------------------------------------------------------------------
-
-
-// Implement _kbhit() locally for non-windows platforms
-int _kbhit(void)
-{
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
- 
-  // Get current terminal attributes and copy to new
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt           = oldt;
-  
-  // Configure for non-canonical and no echo
-  newt.c_lflag &= ~(ICANON | ECHO);
-
-  // Set new attributes
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  
-  // Get stdin attributes
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  
-  // Set stdin attributes for non-blocking
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
- 
-  // Attempt to read a character. Returns EOF if non-available.
-  ch = getchar();
- 
-  // Restore all attributes.
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
- 
-  // If a character was available, return 1 and put the character
-  // back in the queue, mapping LF to CR
-  if(ch != EOF)
-  {
-      // Map line feed generated in Linux to carriage return
-      // expected by MS Basic
-      if (ch == LF)
-      {
-          ungetc(CR, stdin);
-      }
-      // Else print the character
-      else
-      {
-          ungetc(ch, stdin);
-      }
-      return 1;
-  }
- 
-  return 0;
-}
-
-// getchar() is okay for _getch() on non-windows platforms
-#define _getch getchar
-
-#endif
-
-// -------------------------------------------------------------------------
-// Initialise curses terminal for Linux (do nothing for Windows except
-// clear the screen)
-// -------------------------------------------------------------------------
-
-void init_term()
-{
-#if 0 && !(defined _WIN32) && !defined(_WIN64)
-    initscr();
-    noecho();
-    nodelay(stdscr, true);
-    nonl();
-
-    // Curses 'steals' the first output for some reason so output
-    // the prompt
-    addch('\\');
-    addch('\n');
-#else
-    printf("\033c");
-#endif
-}
+static bool    rom_wr_en;
 
 // -------------------------------------------------------------------------
 // Callback for cpu6502 memory writes
 // -------------------------------------------------------------------------
 
-void write_cb (int addr, unsigned char wbyte)
+static void write_cb (int addr, unsigned char wbyte)
 {
-    // If not a PIA register, access memory
-    if (addr < KBD || addr > DSPCR)
-    {
-        mem[addr % MEMTOP] = wbyte;
-    }
     // PIA register
+    if ((addr & PAGEMASK) == PIAPAGEADDR)
+    {
+        pia (addr & ~PAGEMASK, wbyte, false, nolf);
+    }
+    // RAM write
     else
     {
-        switch(addr)
+        // Only write to ROM if enabled (for loading code)
+        if (rom_wr_en || addr < RAMTOP)
         {
-        // If a CR, output CR and LF
-        case DSP:
-            if ((wbyte & 0x7f) == 0x0d)
-            {
-                LM32_OUTPUT_TTY(0x0d);
-                if (!nolf)
-                {
-                    LM32_OUTPUT_TTY(0x0a);
-                }
-            }
-            // Valid byte if top bit set. Output with b7 cleared.
-            else if (wbyte > 0x7f)
-            {
-                LM32_OUTPUT_TTY(wbyte & 0x7f);
-            }
-            break;
-
-        // All other register writes ignored
-        default:
-            break;
+            mem[addr % MEMTOP] = wbyte;
         }
     }
 }
@@ -207,44 +80,21 @@ void write_cb (int addr, unsigned char wbyte)
 // Callback for cpu6502 memory reads
 // -------------------------------------------------------------------------
 
-int  read_cb  (int addr)
+static int read_cb (int addr)
 {
-    // Return byte defaults to 0
-    int rbyte          = 0;
-
-    // Static store for last keyboard press
-    static int lastkey = 0;
-
-    // If not a PIA register, access memory
-    if (addr < KBD || addr > DSPCR)
+    int rbyte;
+    
+    // PIA register
+    if ((addr & PAGEMASK) == PIAPAGEADDR)
     {
-        rbyte          =  mem[addr % MEMTOP];
+        rbyte = pia (addr & ~PAGEMASK, 0, true);
     }
-    // PIA access
+    // RAM read
     else
     {
-        switch(addr)
-        {
-        case KBD:
-            // return last keyboard input with b7 set
-            rbyte      = lastkey | 0x80;
-            break;
-
-        case KBDCR:
-            // if keyboard input available, return 0x80, else 0x00
-            if (LM32_INPUT_RDY_TTY())
-            {
-                lastkey = LM32_GET_INPUT_TTY() & 0xffU;
-                rbyte   = 0x80;
-            }
-            break;
-
-        // All other register reads return default of 0
-        default:
-            break;
-        }
+        rbyte = mem[addr % MEMTOP];
     }
-
+    
     return rbyte;
 }
 
@@ -260,10 +110,10 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
     nolf       = false;
     disassem   = false;
     load_addr  = LOAD_BIN_ADDR;
-    rst_vector = -1;
+    rst_vector = UNSET;
     type       = BIN;
     strncpy(fname, BINPROGNAME, STRBUFSIZE);
-    
+
     bool fnamegiven  = false;
 
     // Process command line options
@@ -327,7 +177,6 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
     return 0;
 }
 
-
 // -------------------------------------------------------------------------
 // ---------------------------  M  A  I  N  --------------------------------
 // -------------------------------------------------------------------------
@@ -352,14 +201,21 @@ int main (int argc, char** argv)
     // Register the memory access callback functions
     p_cpu->register_mem_funcs(write_cb, read_cb);
 
+    // Allow ROM writes when loading program
+    rom_wr_en = true;
+
+    // Load the program to memory
     if (p_cpu->read_prog(fname, type, load_addr))
     {
         fprintf(stderr, "***ERROR: failed to load program\n");
         return 1;
     }
 
-    // Set the reset vector
-    if (rst_vector >= 0)
+    // Disable ROM writes
+    rom_wr_en = false;
+
+    // Update the reset vector if set on the command line
+    if (rst_vector != UNSET)
     {
         p_cpu->wr_mem(RESET_VEC_ADDR,    rst_vector       & MASK_8BIT);
         p_cpu->wr_mem(RESET_VEC_ADDR+1, (rst_vector >> 8) & MASK_8BIT);
@@ -367,9 +223,6 @@ int main (int argc, char** argv)
 
     // Reset the CPU and choose Western Digital instruction extensions
     p_cpu->reset(WDC);
-
-    // Initialise the output terminal
-    init_term();
 
     // Run forever
     p_cpu->run_forever(disassem);
