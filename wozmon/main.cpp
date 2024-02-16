@@ -31,7 +31,9 @@
 #if defined _WIN32 || defined _WIN64
 #include <conio.h>
 #else
-#include <curses.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 // -------------------------------------------------------------------------
@@ -54,15 +56,15 @@
 #define HEXPROGNAME     "cpu6502.ihex"
 #define BINPROGNAME     "cpu6502.bin"
 
-#define MSBAS_RSTADDR   0x8000
-
+#define CR              0x0D
+#define LF              0x0A
 
 // -------------------------------------------------------------------------
 // MACRO DEFINITIONS
 // -------------------------------------------------------------------------
 
 // Hide input and output function specifics for ease of future updating
-#define LM32_OUTPUT_TTY(_x) putchar(_x)
+#define LM32_OUTPUT_TTY(_x) {putchar(_x);}
 #define LM32_INPUT_RDY_TTY _kbhit
 #define LM32_GET_INPUT_TTY _getch
 
@@ -78,36 +80,64 @@ static bool    nolf;
 // -------------------------------------------------------------------------
 
 #if !(defined _WIN32) && !defined(_WIN64)
+// -------------------------------------------------------------------------
+// Keyboard input LINUX/CYGWIN emulation functions
+// -------------------------------------------------------------------------
+
 
 // Implement _kbhit() locally for non-windows platforms
-// using curses
 int _kbhit(void)
 {
-  int rtnval;
-  int c;
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+ 
+  // Get current terminal attributes and copy to new
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt           = oldt;
+  
+  // Configure for non-canonical and no echo
+  newt.c_lflag &= ~(ICANON | ECHO);
 
-  // Attempt to get a charcater from the input
-  c = getch();
-
-  // If the returned value is an error, then no character was ready
-  // so return 0
-  if (c == ERR)
+  // Set new attributes
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  
+  // Get stdin attributes
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  
+  // Set stdin attributes for non-blocking
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+  // Attempt to read a character. Returns EOF if non-available.
+  ch = getchar();
+ 
+  // Restore all attributes.
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+  // If a character was available, return 1 and put the character
+  // back in the queue, mapping LF to CR
+  if(ch != EOF)
   {
-      rtnval =  0;
+      // Map line feed generated in Linux to carriage return
+      // expected by MS Basic
+      if (ch == LF)
+      {
+          ungetc(CR, stdin);
+      }
+      // Else print the character
+      else
+      {
+          ungetc(ch, stdin);
+      }
+      return 1;
   }
-  else
-  {
-      // Put the character just popped back in the queue and
-      // flag that a character is ready
-      ungetch(c);
-      rtnval = 1;
-  }
-
-  return rtnval;
+ 
+  return 0;
 }
 
-// Map curses getch to the windows equivalent
-#define _getch getch
+// getchar() is okay for _getch() on non-windows platforms
+#define _getch getchar
 
 #endif
 
@@ -118,8 +148,9 @@ int _kbhit(void)
 
 void init_term()
 {
-#if !(defined _WIN32) && !defined(_WIN64)
+#if 0 && !(defined _WIN32) && !defined(_WIN64)
     initscr();
+    noecho();
     nodelay(stdscr, true);
     nonl();
 

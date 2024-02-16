@@ -38,10 +38,6 @@ MODELEXE        = $(OPDIR)/$(MODELSRC:%.cpp=%.exe)
 MODELOPTS       = -g -DWOZMON -Wno-write-strings -I../src
 MODELLIBS       = -L. -lcpu6502
 
-ifeq (${OSTYPE}, Linux)
-MODELLIBS       += -lncurses
-endif
-
 CPULIB          = libcpu6502.a
 CPULIBOPTS      = STDALONE=""
 
