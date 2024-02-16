@@ -27,6 +27,7 @@ SYSTEM        = cpu6502
 
 TARGET        = $(SYSTEM).bin
 SRC           = msbasic.s
+ALLSRC        = $(wildcard *.s)
 
 OBJDIR        = obj
 
@@ -42,7 +43,7 @@ MODELEXE      = $(THISDIR)/main.exe
 
 all: $(TARGET) model
 
-$(TARGET): $(OBJDIR)
+$(TARGET): $(OBJDIR) $(ALLSRC)
 	@ca65 -D$(SYSTEM) $(SRC) -o $(OBJDIR)/$(SYSTEM).o
 	@ld65 -C $(SYSTEM).cfg $(OBJDIR)/$(SYSTEM).o -o $(TARGET) -Ln $(OBJDIR)/$(SYSTEM).lbl
 
@@ -65,5 +66,5 @@ clean:
 # --------------------------------------------------------
 
 run: all
-	@./main.exe -n -tBIN -l 0x8000 -r 0x8000
+	@$(MODELEXE) -n -tBIN -l 0x8000
 

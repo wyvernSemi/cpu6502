@@ -50,7 +50,6 @@
 #define DSPCR           0xD013
 
 #define LOAD_BIN_ADDR   0x8000
-#define RST_VECTOR      0xFF00
 
 #define HEXPROGNAME     "cpu6502.ihex"
 #define BINPROGNAME     "cpu6502.bin"
@@ -230,9 +229,11 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
     nolf       = false;
     disassem   = false;
     load_addr  = LOAD_BIN_ADDR;
-    rst_vector = RST_VECTOR;
-    type       = HEX;
-    strncpy(fname, HEXPROGNAME, STRBUFSIZE);
+    rst_vector = -1;
+    type       = BIN;
+    strncpy(fname, BINPROGNAME, STRBUFSIZE);
+    
+    bool fnamegiven  = false;
 
     // Process command line options
     while ((option = getopt(argc, argv, "f:t:l:r:ndh")) != EOF)
@@ -252,14 +253,17 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
             rst_vector        = (int)(strtol(optarg, NULL, 0) & 0xffff);
             break;
         case 't':
-            if (!strcmp(optarg, "BIN") || !strcmp(optarg, "bin"))
-            {
-              type            = BIN;
-              strncpy(fname, BINPROGNAME, STRBUFSIZE);
-            }
-            else if (!strcmp(optarg, "HEX") || !(strcmp(optarg, "hex")))
+            if (!strcmp(optarg, "HEX") || !strcmp(optarg, "hex"))
             {
               type            = HEX;
+              if (!fnamegiven)
+              {
+                  strncpy(fname, HEXPROGNAME, STRBUFSIZE);
+              }
+            }
+            else if (!strcmp(optarg, "BIN") || !(strcmp(optarg, "bin")))
+            {
+              type            = BIN;
             }
             else
             {
@@ -268,21 +272,21 @@ static int parse_args(int argc, char**argv, bool &nolf, bool &disassem, prog_typ
             }
             break;
         case 'f':
-            fname             = optarg;
+            strncpy(fname, optarg, STRBUFSIZE);
+            fnamegiven        = true;
             break;
         case 'h':
             fprintf(stderr, "Usage: %s [-f <filename>][-l <addr>][-t <program type>][n][-d]\n\n"
-                "    -t Program format type                 (default HEX)\n"
+                "    -t Program format type                 (default BIN)\n"
                 "    -f program file name                   (default %s.[ihex|bin] depending on format)\n"
                 "    -l Load start address of binary image  (default 0x%04x)\n"
-                "    -r Reset vector address                (default 0x%04x)\n"
+                "    -r Reset vector address                (default set from program)\n"
                 "    -n Disable line feed generation        (default false)\n"
                 "    -d Enable disassembly                  (default false)\n"
                 "\n"
                           , argv[0]
                           , "cpu6502"
                           , LOAD_BIN_ADDR
-                          , RST_VECTOR
                           );
             return 1;
             break;
@@ -324,8 +328,11 @@ int main (int argc, char** argv)
     }
 
     // Set the reset vector
-    p_cpu->wr_mem(RESET_VEC_ADDR,    rst_vector       & MASK_8BIT);
-    p_cpu->wr_mem(RESET_VEC_ADDR+1, (rst_vector >> 8) & MASK_8BIT);
+    if (rst_vector >= 0)
+    {
+        p_cpu->wr_mem(RESET_VEC_ADDR,    rst_vector       & MASK_8BIT);
+        p_cpu->wr_mem(RESET_VEC_ADDR+1, (rst_vector >> 8) & MASK_8BIT);
+    }
 
     // Reset the CPU and choose Western Digital instruction extensions
     p_cpu->reset(WDC);

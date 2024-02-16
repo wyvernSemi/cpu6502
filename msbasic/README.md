@@ -1,19 +1,19 @@
 # Microsoft Basic ported for the cpu6502 model
 
-This is a version of Microsft Basic that has been ported to the cpu6502 ISS. It uses the model from the <tt>wozmon</tt> directory and the <tt>makefile</tt> in this directory can be used to compile basic and the mode (type <tt>make</tt>). This generates a <tt>main.exe</tt> executable. To run MSBASIC on the model you can use <tt>make run</tt>. Alternatively the executable can be run directly with the following command line options:
+This is a version of Microsft Basic that has been ported to the cpu6502 ISS. It uses the model from the <tt>wozmon</tt> directory and the <tt>makefile</tt> in this directory can be used to compile basic and the mode (type <tt>make</tt>). This generates a <tt>main.exe</tt> executable. To run MSBASIC on the model you can use <tt>make run</tt>. Alternatively the executable can be run directly with the following command line options (to suppress linefeed generation):
 
 
-    main.exe -n -tBIN -l 0x8000 -r 0x8000
+    main.exe -n
 
 
 The usage message (use the <tt>-h</tt> option) for the executable is:
 
     Usage: main.exe [-f <filename>][-l <addr>][-t <program type>][n][-d]
     
-        -t Program format type                 (default HEX)
+        -t Program format type                 (default BIN)
         -f program file name                   (default cpu6502.[ihex|bin] depending on format)
         -l Load start address of binary image  (default 0x8000)
-        -r Reset vector address                (default 0xff00)
+        -r Reset vector address                (default set from program)
         -n Disable line feed generation        (default false)
         -d Enable disassembly                  (default false)
 
