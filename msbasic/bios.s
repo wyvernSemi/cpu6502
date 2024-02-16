@@ -2,6 +2,11 @@
 .debuginfo
 .segment "BIOS"
 
+KBD             = $D010         ;  PIA.A keyboard input
+KBDCR           = $D011         ;  PIA.A keyboard control register
+DSP             = $D012         ;  PIA.B display output register
+DSPCR           = $D013         ;  PIA.B display control register
+
 ; Input a character from the serial interface.
 ; On return, carry flag indicates whether a key was pressed
 ; If a key was pressed, the key value will be in the A register
@@ -36,8 +41,9 @@ WAITOP:         bit DSP         ; DA bit (B7) cleared yet?
                 rts
                 
                 
-.segment "WOZMON"
-.org $FF00
-.include "../wozmon/wozmon.asm"
+.segment "RESETVEC"
+                .word   $0F00           ; NMI vector
+                .word   RESET           ; RESET vector
+                .word   $0000           ; IRQ vector
 
 
