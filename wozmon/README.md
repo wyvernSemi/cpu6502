@@ -2,13 +2,13 @@
 
 This directory contains the orignal Woz Monitor code for the Apple I computer (<tt>wozmon.asm</tt>) and top level code to instantiate the cpu6502 processor model with a simple PIA model that has memory mapped registers between <tt>0xD0010</tt> and <tt>0xD0013</tt> for keyboard input and character display output, to match that expected for the source code.
 
-A <tt>makefile</tt> is used to compile the cpu6502 library, the main top level code, and assemble wozman. To compile and run the code use <tt>make run</tt>. This has been tested on MSYS2/mingw-64 and the <tt>gcc</tt> toolchain. Assembly of Woz Monitor code relies on <tt>vasm</tt>, compiled with <tt>CPU=6502</tt> and <tt>SYNTAX=oldstyle</tt>. By default, the [CC65](https://www.cc65.org/) suite is used for assembling and linking, and is assumed to be on the path.
+A <tt>makefile</tt> is used to compile the cpu6502 library, the main top level code, and assemble wozman. To compile and run the code use <tt>make run</tt>. This has been tested on Ubuntu Linux and MSYS2/mingw-64 with the <tt>gcc</tt> toolchain. By default, the [CC65](https://www.cc65.org/) suite is used for assembling and linking, and is assumed to be on the path.
 
-When built, a standalone executable, <tt>main.exe</tt>, is generated. To run from the command line directly use, assumimg built from <tt>make</tt>:
+When built, a standalone executable, <tt>main.exe</tt>, is generated aong with a <tt>cpu6502.bin</tt> binary containing Wozman. To run from the command line directly use, assumimg built from <tt>make</tt>:
 
     main.exe
 
-This assumes that a file <tt>cpu6502.bin</tt> has been built as a 32Kbyte image for loading at address <tt>0x8000</tt> and that the image will populate the reset vector at <tt>0xFFFA</tt>. Other command line options exists to change the filename and other parameters. The usage message is as shown below:
+This assumes that the file <tt>cpu6502.bin</tt> has been built as a 32Kbyte image for loading at address <tt>0x8000</tt> and that the image will populate the reset vector at <tt>0xFFFA</tt>. Other command line options exists to change the filename and other parameters. The usage message is as shown below:
 
     Usage: main.exe [-f <filename>][-l <addr>][-t <program type>][n][-d]
     
