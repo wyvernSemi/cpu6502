@@ -45,8 +45,9 @@ endif
 CPULIB          = libcpu6502.a
 CPULIBOPTS      = STDALONE=""
 
-ASMEXE          = vasm
-ASMOPTS         = -dotdir -wdc02 -L $(WOZROOTNAME).lst
+ASMEXE          = ca65
+ASMLD           = ld65
+ASMOPTS         = 
 
 C++             = g++
 
@@ -54,7 +55,7 @@ C++             = g++
 # Build rules
 # --------------------------------------------------------
 
-all: $(MODELEXE) ihex
+all: $(MODELEXE) bin
 
 # Targets for different assembler output formats
 bin:  $(TARGETNAME).bin
@@ -72,15 +73,8 @@ $(MODELEXE): $(MODELSRC) $(CPULIB)
 
 # Rule to assemble binary output
 $(TARGETNAME).bin: $(WOZSRC)
-	@$(ASMEXE) $(ASMOPTS) -Fbin $(WOZSRC) -o $@
-
-# Rule to assemble Intel hex output
-$(TARGETNAME).ihex: $(WOZSRC)
-	@$(ASMEXE) $(ASMOPTS) -Fihex $(WOZSRC) -o $@
-
-# Rule to assemble Motorola S-Record output
-$(TARGETNAME).srec: $(WOZSRC)
-	@$(ASMEXE) $(ASMOPTS) -Fsrec $(WOZSRC) -o $@
+	@$(ASMEXE) $(ASMOPTS) $(WOZSRC) -o $(WOZSRC:%.asm=%.o)
+	@$(ASMLD) -C $(WOZSRC:%.asm=%.cfg)  $(WOZSRC:%.asm=%.o) -o $@
 
 # --------------------------------------------------------
 # Clean rules
@@ -95,4 +89,4 @@ clean:
 # --------------------------------------------------------
 
 run: all
-	@./$(MODELEXE)
+	@./$(MODELEXE) -t BIN
