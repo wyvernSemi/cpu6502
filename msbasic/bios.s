@@ -19,7 +19,10 @@ CHRIN:
                 beq @no_keypressed
                 lda KBD         ; Load character. B7 should be ‘1’.
                 and #$7F
+                cmp #$1B        ; If an <ESC>, don't echo
+                beq @was_esc
                 jsr CHROUT      ; Display character.
+@was_esc:
                 sec
                 rts
 @no_keypressed:
