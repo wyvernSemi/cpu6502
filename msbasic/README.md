@@ -1,6 +1,6 @@
 # Microsoft Basic ported for the cpu6502 model
 
-This is a version of Microsft Basic that has been ported to the cpu6502 ISS. It uses the model from the <tt>wozmon</tt> directory and the <tt>makefile</tt> in this directory can be used to compile basic and the mode (type <tt>make</tt>). This generates a <tt>main.exe</tt> executable. To run MSBASIC on the model you can use <tt>make run</tt>. Alternatively the executable can be run directly with the following command line options (to suppress linefeed generation):
+This is a version of Microsft Basic that has been ported to the cpu6502 ISS. It uses the model from the <tt>wozmon</tt> directory and the <tt>makefile</tt> in this directory can be used to compile basic and the model (type <tt>make</tt>). The assembling and linking of the MS Basic code uses the [CC65](https://github.com/cc65/cc65) tools which must be downloaded and compiled locally and the resultant <tt>bin/</tt> directory placed in the <tt>PATH</tt>. Building with make generates a <tt>main.exe</tt> executable of the mdoel and a <tt>cpu6502.bin</tt> binary file with the compiled MS Bssic. To run MSBASIC on the model you can use <tt>make run</tt>. Alternatively the executable can be run directly with the following command line options (to suppress linefeed generation):
 
 
     main.exe -n
